@@ -1,20 +1,37 @@
 const express = require('express');
 const router = express.Router();
-// const { register, login, getMe } = require('../controllers/authController');
-// const { protect } = require('../middleware/auth');
+const {
+  register,
+  verifyOTP,
+  resendOTP,
+  login,
+  getMe,
+  updateProfile,
+  uploadAvatar,
+  changePassword,
+  addAddress,
+  updateAddress,
+  deleteAddress,
+  getAddresses,
+} = require('../controllers/authController');
+const { protect, admin, vendor, verifyActive } = require('../middleware/auth');
 
-// Routes will be implemented with controllers
-// router.post('/register', register);
-// router.post('/login', login);
-// router.get('/me', protect, getMe);
+// Public routes
+router.post('/register', register);
+router.post('/verify-otp', verifyOTP);
+router.post('/resend-otp', resendOTP);
+router.post('/login', login);
 
-// Placeholder routes
-router.post('/register', (req, res) => {
-  res.json({ message: 'Register route - to be implemented' });
-});
+// Protected routes
+router.get('/me', protect, getMe);
+router.put('/profile', protect, updateProfile);
+router.post('/upload-avatar', protect, uploadAvatar);
+router.post('/change-password', protect, changePassword);
 
-router.post('/login', (req, res) => {
-  res.json({ message: 'Login route - to be implemented' });
-});
+// Address management routes
+router.post('/add-address', protect, addAddress);
+router.put('/address/:addressId', protect, updateAddress);
+router.delete('/address/:addressId', protect, deleteAddress);
+router.get('/addresses', protect, getAddresses);
 
 module.exports = router;

@@ -35,11 +35,9 @@ app.get('/', (req, res) => {
   res.json({ message: 'Welcome to RentGo API' });
 });
 
-// Import routes (will be added later)
-// const authRoutes = require('./routes/auth');
-// const userRoutes = require('./routes/users');
-// app.use('/api/auth', authRoutes);
-// app.use('/api/users', userRoutes);
+// Import and use auth routes
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -48,6 +46,12 @@ app.use((err, req, res, next) => {
     message: 'Something went wrong!',
     error: process.env.NODE_ENV === 'development' ? err.message : {}
   });
+});
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 // Start server

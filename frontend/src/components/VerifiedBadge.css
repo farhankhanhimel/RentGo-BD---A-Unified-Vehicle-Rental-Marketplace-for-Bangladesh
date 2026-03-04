@@ -1,0 +1,51 @@
+/* Verified Badge Component */
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.vb-icon {
+  flex-shrink: 0;
+}
+
+.vb-label {
+  color: #667eea;
+  font-weight: 600;
+}
+
+/* Variants */
+.vb-default {
+  display: inline-flex;
+}
+
+.vb-inline {
+  background: #f0f4ff;
+  padding: 2px 8px 2px 4px;
+  border-radius: 12px;
+}
+
+.vb-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 3px 10px 3px 6px;
+  border-radius: 14px;
+}
+
+.vb-card .vb-label {
+  color: white;
+}
+
+/* Sizes */
+.vb-small { gap: 2px; }
+.vb-large { gap: 6px; }
+
+/* Shimmer animation for verified badge */
+.verified-badge .vb-icon {
+  animation: vbShimmer 3s ease-in-out infinite;
+}
+
+@keyframes vbShimmer {
+  0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+  50% { filter: drop-shadow(0 0 4px rgba(102, 126, 234, 0.4)); }
+}

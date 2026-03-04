@@ -1,0 +1,327 @@
+/* Vendor Verification Page */
+.vv-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: calc(100vh - 200px);
+}
+
+/* Header */
+.vv-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 40px 35px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.vv-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 1.8rem;
+}
+
+.vv-header p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+/* Messages */
+.vv-error {
+  background: #ffebee;
+  color: #c62828;
+  padding: 12px 18px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #c62828;
+}
+
+.vv-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 12px 18px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #2e7d32;
+}
+
+/* Loading */
+.vv-loading {
+  text-align: center;
+  padding: 60px;
+  color: #666;
+}
+
+.vv-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f0f0f0;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: vvSpin 0.8s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes vvSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Status Card */
+.vv-status-card {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  background: white;
+  padding: 25px 30px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.vv-status-card.approved {
+  border-left: 5px solid #2e7d32;
+  background: #f1f8e9;
+}
+
+.vv-status-card.pending {
+  border-left: 5px solid #ff9800;
+  background: #fff8e1;
+}
+
+.vv-status-card.rejected {
+  border-left: 5px solid #c62828;
+  background: #fff5f5;
+}
+
+.vv-status-card.not_submitted {
+  border-left: 5px solid #9e9e9e;
+}
+
+.vv-status-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.vv-status-info h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vv-status-info p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Benefits */
+.vv-benefits {
+  margin-bottom: 25px;
+}
+
+.vv-benefits h2 {
+  color: #333;
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #667eea;
+}
+
+.vv-benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.vv-benefit {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s;
+}
+
+.vv-benefit:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.12);
+}
+
+.vv-benefit-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.vv-benefit h4 {
+  margin: 0 0 6px 0;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.vv-benefit p {
+  margin: 0;
+  color: #666;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+/* Form Card */
+.vv-form-card {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 25px;
+}
+
+.vv-form-card h2 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 1.2rem;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #667eea;
+}
+
+.vv-section {
+  margin-bottom: 25px;
+}
+
+.vv-section-title {
+  font-size: 1rem;
+  color: #667eea;
+  margin: 0 0 10px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.vv-section-desc {
+  font-size: 0.85rem;
+  color: #999;
+  margin: 0 0 12px 0;
+}
+
+.vv-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.vv-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.vv-form-group.vv-full {
+  grid-column: 1 / -1;
+}
+
+.vv-form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.vv-form-group input,
+.vv-form-group select {
+  padding: 10px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color 0.3s;
+}
+
+.vv-form-group input:focus,
+.vv-form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.vv-submit-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+/* Approved Info */
+.vv-approved-info {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.vv-approved-info h2 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 1.2rem;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #667eea;
+}
+
+.vv-doc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.vv-doc-item {
+  padding: 12px 15px;
+  background: #f9fbfd;
+  border-radius: 8px;
+}
+
+.vv-doc-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.vv-doc-value {
+  font-size: 0.95rem;
+  color: #333;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .vv-container {
+    padding: 20px 15px;
+  }
+
+  .vv-benefits-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .vv-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vv-doc-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vv-status-card {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .vv-benefits-grid {
+    grid-template-columns: 1fr;
+  }
+}

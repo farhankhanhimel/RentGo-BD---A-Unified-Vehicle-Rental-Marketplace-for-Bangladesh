@@ -11,6 +11,7 @@ import VendorDashboard from './pages/VendorDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import SearchFilterPage from '../pages/SearchFilterPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, role = null }) => {
@@ -49,6 +50,13 @@ function AppContent() {
                 <ProtectedRoute>
                   <Profile />
                 </ProtectedRoute>
+              }
+            />
+
+            <Route 
+              path="/search" 
+              element={
+                <SearchFilterPage />
               }
             />
 

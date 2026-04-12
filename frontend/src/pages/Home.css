@@ -76,3 +76,152 @@
   color: #666;
   line-height: 1.6;
 }
+
+.vehicle-explorer {
+  margin-top: 40px;
+  padding: 34px;
+  border-radius: 18px;
+  background: radial-gradient(circle at top right, #fff2d8, #fffdf8 48%, #f4f9ff 100%);
+  border: 1px solid #f1d6a3;
+}
+
+.vehicle-explorer h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: #1a2b4b;
+}
+
+.vehicle-explorer-subtitle {
+  color: #596780;
+  margin-bottom: 20px;
+}
+
+.vehicle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.vehicle-card {
+  text-align: left;
+  background: white;
+  border: 1px solid #dbe4f0;
+  border-radius: 14px;
+  padding: 18px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.vehicle-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(13, 58, 120, 0.1);
+}
+
+.vehicle-card.active {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+.vehicle-card h3 {
+  margin-bottom: 8px;
+  color: #1f2a37;
+}
+
+.vehicle-card p {
+  margin: 3px 0;
+  color: #556175;
+}
+
+.vehicle-detail-panel {
+  background: #ffffff;
+  border: 1px solid #dae4f1;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.vehicle-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.vehicle-detail-head h3 {
+  margin: 0 0 6px;
+}
+
+.driver-toggle {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 600;
+}
+
+.helper-text {
+  color: #697587;
+  margin-top: 6px;
+}
+
+.rating-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.rating-item {
+  display: flex;
+  gap: 12px;
+  border: 1px solid #e6ecf4;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.rating-item img {
+  width: 64px;
+  height: 64px;
+  border-radius: 9px;
+  object-fit: cover;
+}
+
+.rating-item h4 {
+  margin: 0 0 4px;
+  color: #16243f;
+}
+
+.rating-item p {
+  margin: 2px 0;
+  color: #5b6576;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 36px;
+  }
+
+  .hero p {
+    font-size: 18px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .features h2,
+  .vehicle-explorer h2 {
+    font-size: 28px;
+  }
+
+  .vehicle-explorer {
+    padding: 22px;
+  }
+
+  .vehicle-detail-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

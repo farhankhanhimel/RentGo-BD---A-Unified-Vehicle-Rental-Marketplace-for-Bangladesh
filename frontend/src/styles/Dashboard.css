@@ -285,6 +285,106 @@
   white-space: nowrap;
 }
 
+.alert-message {
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.alert-message.error {
+  background: #fde8e8;
+  color: #b42318;
+  border: 1px solid #f9b4b4;
+}
+
+.alert-message.success {
+  background: #e9f9ef;
+  color: #0f7a3d;
+  border: 1px solid #a9e0bf;
+}
+
+.driver-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.driver-form input,
+.assignment-item select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.driver-form input:focus,
+.assignment-item select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.driver-roster-list,
+.assignment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.driver-roster-item,
+.assignment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fbfcff;
+}
+
+.driver-roster-item img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #dbe0ea;
+}
+
+.driver-roster-meta {
+  flex: 1;
+}
+
+.driver-roster-meta h3,
+.assignment-item h3 {
+  margin: 0 0 6px;
+  color: #1f2a37;
+}
+
+.driver-roster-meta p,
+.assignment-item p {
+  margin: 4px 0;
+  color: #4b5563;
+  font-size: 0.92rem;
+}
+
+.btn-danger {
+  background: #c62828;
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #9b1c1c;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .dashboard-container {
@@ -313,6 +413,16 @@
 
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .driver-roster-item,
+  .assignment-item {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .verification-steps {

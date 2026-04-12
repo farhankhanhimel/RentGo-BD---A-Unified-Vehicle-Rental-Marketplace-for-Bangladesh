@@ -385,6 +385,62 @@
   background: #9b1c1c;
 }
 
+.helper-note {
+  margin: 0 0 14px;
+  color: #44516b;
+}
+
+.payment-booking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.payment-booking-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #dbe3f0;
+  border-radius: 12px;
+  background: #f9fbff;
+}
+
+.payment-booking-item h3 {
+  margin: 0 0 8px;
+  color: #25324c;
+}
+
+.payment-booking-item p {
+  margin: 4px 0;
+  color: #4f5d75;
+  font-size: 0.92rem;
+}
+
+.payment-actions {
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.receipt-panel {
+  padding: 14px;
+  border: 1px solid #d4deee;
+  background: #f6fbf4;
+  border-radius: 10px;
+}
+
+.receipt-panel h3 {
+  margin: 0 0 8px;
+  color: #204d31;
+}
+
+.receipt-panel p {
+  margin: 4px 0;
+  color: #325340;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .dashboard-container {
@@ -420,9 +476,14 @@
   }
 
   .driver-roster-item,
-  .assignment-item {
+  .assignment-item,
+  .payment-booking-item {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .payment-actions {
+    min-width: 100%;
   }
 
   .verification-steps {

@@ -9,6 +9,7 @@ import Profile from './pages/Profile';
 import CustomerDashboard from './pages/CustomerDashboard';
 import VendorDashboard from './pages/VendorDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import PaymentResult from './pages/PaymentResult';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
@@ -41,6 +42,7 @@ function AppContent() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/payment-result" element={<PaymentResult />} />
             
             {/* Protected Routes */}
             <Route 

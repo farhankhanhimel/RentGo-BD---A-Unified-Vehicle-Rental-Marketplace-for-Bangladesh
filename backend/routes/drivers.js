@@ -6,6 +6,7 @@ const {
   updateDriver,
   deleteDriver,
   createBooking,
+  getCustomerBookings,
   getVendorBookings,
   assignDriverToBooking,
   addDriverRating,
@@ -16,6 +17,7 @@ const { protect, vendor } = require('../middleware/auth');
 router.get('/vehicle/:vendorId', getVehicleDriverRatings);
 
 router.post('/bookings', protect, createBooking);
+router.get('/bookings/customer', protect, getCustomerBookings);
 router.post('/:id/ratings', protect, addDriverRating);
 
 router.get('/', protect, vendor, getVendorDrivers);

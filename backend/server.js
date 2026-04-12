@@ -38,8 +38,10 @@ app.get('/', (req, res) => {
 // Import and use auth routes
 const authRoutes = require('./routes/auth');
 const driverRoutes = require('./routes/drivers');
+const paymentRoutes = require('./routes/payments');
 app.use('/api/auth', authRoutes);
 app.use('/api/drivers', driverRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

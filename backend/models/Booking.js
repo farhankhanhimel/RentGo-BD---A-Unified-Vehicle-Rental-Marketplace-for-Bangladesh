@@ -32,6 +32,25 @@ const bookingSchema = new mongoose.Schema(
       type: Date,
       required: [true, 'Pickup date is required'],
     },
+    totalAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    paidAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['unpaid', 'partial_paid', 'paid', 'failed'],
+      default: 'unpaid',
+    },
+    lastTransactionId: {
+      type: String,
+      default: '',
+    },
     status: {
       type: String,
       enum: ['pending', 'confirmed', 'completed', 'cancelled'],

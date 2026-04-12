@@ -117,7 +117,7 @@ exports.deleteDriver = async (req, res) => {
 
 exports.createBooking = async (req, res) => {
   try {
-    const { vendorId, vehicleName, withDriver, assignedDriverId, pickupDate } = req.body;
+    const { vendorId, vehicleName, withDriver, assignedDriverId, pickupDate, totalAmount } = req.body;
 
     if (!vendorId || !vehicleName || !pickupDate) {
       return res.status(400).json({ message: 'vendorId, vehicleName and pickupDate are required' });
@@ -144,6 +144,8 @@ exports.createBooking = async (req, res) => {
       withDriver: Boolean(withDriver),
       assignedDriver,
       pickupDate,
+      totalAmount: Number(totalAmount || 0),
+      paymentStatus: 'unpaid',
     });
 
     const populated = await Booking.findById(booking._id)
@@ -155,6 +157,19 @@ exports.createBooking = async (req, res) => {
       message: 'Booking created successfully',
       booking: populated,
     });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getCustomerBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find({ customer: req.user._id })
+      .populate('vendor', 'name vendorDetails.businessName')
+      .populate('assignedDriver', 'fullName averageRating')
+      .sort({ createdAt: -1 });
+
+    return res.json(bookings);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

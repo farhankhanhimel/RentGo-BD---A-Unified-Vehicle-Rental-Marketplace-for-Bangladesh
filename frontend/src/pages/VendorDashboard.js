@@ -1,9 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Dashboard.css';
 
 const VendorDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="dashboard-container">
@@ -35,7 +37,13 @@ const VendorDashboard = () => {
               <p>View all bookings</p>
             </div>
 
-            <div className="action-card earnings">
+            <div
+              className="action-card earnings"
+              onClick={() => navigate('/vendor/bookings')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && navigate('/vendor/bookings')}
+            >
               <div className="icon">💰</div>
               <h3>Earnings</h3>
               <p>Check your income</p>

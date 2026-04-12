@@ -151,6 +151,29 @@ const seed = async () => {
       console.log('⏭️  Demo Admin already exists');
     }
 
+    // Ensure demo credentials are always deterministic across re-seeds
+    await User.updateMany(
+      {
+        email: {
+          $in: [
+            'demo.customer@rentgo.com',
+            'demo.vendor@rentgo.com',
+            'demo.vendor2@rentgo.com',
+            'demo.vendor3@rentgo.com',
+            'demo.admin@rentgo.com',
+          ],
+        },
+      },
+      {
+        $set: {
+          password: hashedPassword,
+          isActive: true,
+          isPhoneVerified: true,
+        },
+      }
+    );
+    console.log('✅ Demo account credentials reset (password: demo1234)');
+
     // ─── 2. VEHICLES ──────────────────────────────────────────
     console.log('\n--- Seeding Vehicles ---');
 
@@ -321,6 +344,8 @@ const seed = async () => {
           balanceDue: 8400,
         },
         status: 'confirmed',
+        paymentStatus: 'partial',
+        transactionId: 'TXN-DEMO-001',
         statusHistory: [
           { status: 'pending', timestamp: new Date('2026-03-01'), note: 'Booking placed' },
           { status: 'confirmed', timestamp: new Date('2026-03-01T01:00:00'), note: 'Vendor confirmed' },
@@ -351,6 +376,7 @@ const seed = async () => {
           balanceDue: 5200,
         },
         status: 'pending',
+        paymentStatus: 'pending',
         statusHistory: [
           { status: 'pending', timestamp: new Date('2026-03-02'), note: 'Booking request submitted' },
         ],
@@ -379,12 +405,179 @@ const seed = async () => {
           balanceDue: 0,
         },
         status: 'trip_completed',
+        paymentStatus: 'paid',
+        transactionId: 'TXN-DEMO-003',
         statusHistory: [
           { status: 'pending', timestamp: new Date('2026-02-18') },
           { status: 'confirmed', timestamp: new Date('2026-02-18T02:00:00') },
           { status: 'vehicle_handed_over', timestamp: new Date('2026-02-20T08:00:00') },
           { status: 'trip_started', timestamp: new Date('2026-02-20T08:30:00') },
           { status: 'trip_completed', timestamp: new Date('2026-02-20T18:00:00') },
+        ],
+      },
+      {
+        bookingId: 'DEMO-BK-004',
+        customer: customer._id,
+        vendor: vendor1._id,
+        vehicle: vehicles[8]._id, // Honda Civic
+        bookingMode: 'instant',
+        tripDetails: {
+          pickupLocation: 'Mohammadpur, Dhaka',
+          dropoffLocation: 'Gulshan, Dhaka',
+          pickupDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+          returnDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+          tripType: 'office',
+        },
+        pricing: {
+          baseRate: 4000,
+          driverFee: 900,
+          fuelCharge: 500,
+          serviceFee: 250,
+          couponDiscount: 0,
+          totalAmount: 5650,
+          advancePaid: 2000,
+          balanceDue: 3650,
+        },
+        status: 'vehicle_handed_over',
+        paymentStatus: 'partial',
+        transactionId: 'TXN-DEMO-004',
+        createdAt: new Date(),
+        statusHistory: [
+          { status: 'pending', timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000), note: 'Booking placed' },
+          { status: 'confirmed', timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), note: 'Vendor confirmed' },
+          { status: 'vehicle_handed_over', timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000), note: 'Vehicle is ready for pickup' },
+        ],
+      },
+      {
+        bookingId: 'DEMO-BK-005',
+        customer: customer._id,
+        vendor: vendor1._id,
+        vehicle: vehicles[2]._id, // Honda CBR 150R
+        bookingMode: 'instant',
+        tripDetails: {
+          pickupLocation: 'Dhanmondi, Dhaka',
+          dropoffLocation: 'Uttara, Dhaka',
+          pickupDate: new Date(),
+          returnDate: new Date(),
+          tripType: 'other',
+        },
+        pricing: {
+          baseRate: 800,
+          driverFee: 0,
+          fuelCharge: 120,
+          serviceFee: 80,
+          couponDiscount: 0,
+          totalAmount: 1000,
+          advancePaid: 1000,
+          balanceDue: 0,
+        },
+        status: 'trip_started',
+        paymentStatus: 'paid',
+        transactionId: 'TXN-DEMO-005',
+        createdAt: new Date(),
+        statusHistory: [
+          { status: 'pending', timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000) },
+          { status: 'confirmed', timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000) },
+          { status: 'vehicle_handed_over', timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000) },
+          { status: 'trip_started', timestamp: new Date(Date.now() - 30 * 60 * 1000) },
+        ],
+      },
+      {
+        bookingId: 'DEMO-BK-006',
+        customer: customer._id,
+        vendor: vendor1._id,
+        vehicle: vehicles[0]._id, // Toyota Corolla
+        bookingMode: 'request',
+        tripDetails: {
+          pickupLocation: 'Mirpur, Dhaka',
+          dropoffLocation: 'Airport, Dhaka',
+          pickupDate: new Date('2026-03-18'),
+          returnDate: new Date('2026-03-18'),
+          tripType: 'airport',
+        },
+        pricing: {
+          baseRate: 3500,
+          driverFee: 800,
+          fuelCharge: 400,
+          serviceFee: 180,
+          couponDiscount: 0,
+          totalAmount: 4880,
+          advancePaid: 0,
+          balanceDue: 4880,
+        },
+        status: 'declined',
+        paymentStatus: 'pending',
+        vendorResponse: {
+          action: 'declined',
+          reason: 'Vehicle unavailable for requested slot',
+          respondedAt: new Date('2026-03-16T10:00:00'),
+        },
+        statusHistory: [
+          { status: 'pending', timestamp: new Date('2026-03-16T09:00:00'), note: 'Booking request submitted' },
+          { status: 'declined', timestamp: new Date('2026-03-16T10:00:00'), note: 'Declined due to schedule conflict' },
+        ],
+      },
+      {
+        bookingId: 'DEMO-BK-007',
+        customer: customer._id,
+        vendor: vendor1._id,
+        vehicle: vehicles[1]._id, // Toyota Noah microbus
+        bookingMode: 'instant',
+        tripDetails: {
+          pickupLocation: 'Banani, Dhaka',
+          dropoffLocation: 'Savar, Dhaka',
+          pickupDate: new Date('2026-03-12'),
+          returnDate: new Date('2026-03-12'),
+          tripType: 'office',
+        },
+        pricing: {
+          baseRate: 6000,
+          driverFee: 1000,
+          fuelCharge: 700,
+          serviceFee: 250,
+          couponDiscount: 300,
+          couponCode: 'DEMO-VENDOR',
+          totalAmount: 7650,
+          advancePaid: 2000,
+          balanceDue: 5650,
+        },
+        status: 'cancelled',
+        paymentStatus: 'refunded',
+        transactionId: 'TXN-DEMO-007',
+        statusHistory: [
+          { status: 'pending', timestamp: new Date('2026-03-10T08:00:00') },
+          { status: 'confirmed', timestamp: new Date('2026-03-10T09:00:00') },
+          { status: 'cancelled', timestamp: new Date('2026-03-11T18:00:00'), note: 'Cancelled due to customer request' },
+        ],
+      },
+      {
+        bookingId: 'DEMO-BK-008',
+        customer: customer._id,
+        vendor: vendor2._id,
+        vehicle: vehicles[4]._id, // Hyundai H-1
+        bookingMode: 'request',
+        tripDetails: {
+          pickupLocation: 'Uttara, Dhaka',
+          dropoffLocation: 'Gazipur',
+          pickupDate: new Date('2026-03-25'),
+          returnDate: new Date('2026-03-25'),
+          tripType: 'office',
+        },
+        pricing: {
+          baseRate: 7000,
+          driverFee: 1200,
+          fuelCharge: 900,
+          serviceFee: 300,
+          couponDiscount: 0,
+          totalAmount: 9400,
+          advancePaid: 0,
+          balanceDue: 9400,
+        },
+        status: 'confirmed',
+        paymentStatus: 'pending',
+        statusHistory: [
+          { status: 'pending', timestamp: new Date('2026-03-20T08:00:00') },
+          { status: 'confirmed', timestamp: new Date('2026-03-20T09:30:00') },
         ],
       },
     ]);
@@ -657,7 +850,8 @@ const seed = async () => {
     console.log('  • Notifications:   Customer has 3 unread notifications');
     console.log('  • Coupons:         Try DEMO500 or DEMO20 at checkout');
     console.log('  • Event Packages:  3 packages (wedding, corporate, airport)');
-    console.log('  • Vendor Bookings: Vendor 1 has 2 bookings to manage');
+    console.log('  • Invoice PDF:     Try DEMO-BK-001 or DEMO-BK-003 from customer/admin');
+    console.log('  • Vendor Dashboard: Vendor 1 has multiple statuses + today bookings');
     console.log('========================================\n');
 
     await mongoose.disconnect();

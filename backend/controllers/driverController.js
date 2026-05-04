@@ -4,6 +4,7 @@ const User = require('../models/User');
 const mongoose = require('mongoose');
 const { notifyEmergencyBooking } = require('../services/emergencyNotificationService');
 const { emitToAdmins, emitToCustomer, emitToVendor } = require('../services/socketService');
+const { createNotification } = require('../services/notificationService');
 
 const toLanguagesArray = (value) => {
   if (Array.isArray(value)) {
@@ -221,6 +222,12 @@ exports.createBooking = async (req, res) => {
 
     if (booking.isEmergency) {
       await notifyEmergencyBooking(booking._id);
+    } else {
+      // notify vendor of a new booking request if vendor assigned
+      if (vendor) {
+        await createNotification(vendor._id, 'new_booking', 'New booking request', `A new booking for ${vehicleName} was created`, { bookingId: booking._id, customerId: req.user._id, vendorId: vendor._id });
+        emitToVendor(vendor._id, 'booking:new', { bookingId: booking._id });
+      }
     }
 
     const populated = await populateBooking(Booking.findById(booking._id));
@@ -404,6 +411,14 @@ exports.addDriverRating = async (req, res) => {
     driver.recalculateRating();
 
     await driver.save();
+
+    // notify vendor about new review
+    try {
+      await createNotification(driver.vendor, 'new_review', 'New driver review', `A customer left a review for driver ${driver.fullName}`, { driverId: driver._id, vendorId: driver.vendor });
+      emitToVendor(driver.vendor, 'review:new', { driverId: driver._id, score: Number(score) });
+    } catch (e) {
+      // ignore notification errors
+    }
 
     return res.status(201).json({
       message: 'Driver rated successfully',

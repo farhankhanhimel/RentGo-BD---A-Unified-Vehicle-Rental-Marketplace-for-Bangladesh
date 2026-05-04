@@ -437,6 +437,20 @@ const finalizePayment = async ({ transactionId, nextStatus, valId, amount, cardT
     booking.lastTransactionId = transaction.transactionId;
     await updateBookingAfterPayment(booking, settledAmount, true);
 
+    // notify customer and vendor about successful payment
+    try {
+      const { createNotification } = require('../services/notificationService');
+      const { emitToCustomer, emitToVendor } = require('../services/socketService');
+      await createNotification(transaction.customer, 'payment_success', 'Payment successful', `Payment of BDT ${settledAmount} received for booking ${booking._id}`, { bookingId: booking._id, customerId: transaction.customer });
+      emitToCustomer(transaction.customer, 'payment:success', { bookingId: booking._id, transactionId: transaction.transactionId });
+      if (booking.vendor) {
+        await createNotification(booking.vendor, 'payment_received', 'Payment received', `Customer paid BDT ${settledAmount} for booking ${booking._id}`, { bookingId: booking._id, vendorId: booking.vendor });
+        emitToVendor(booking.vendor, 'payment:received', { bookingId: booking._id, transactionId: transaction.transactionId });
+      }
+    } catch (e) {
+      // ignore notification errors
+    }
+
     return transaction;
   }
 
@@ -447,6 +461,16 @@ const finalizePayment = async ({ transactionId, nextStatus, valId, amount, cardT
   const booking = await Booking.findById(transaction.booking._id);
   booking.lastTransactionId = transaction.transactionId;
   await updateBookingAfterPayment(booking, 0, false);
+
+  // notify customer about failed/cancelled payment
+  try {
+    const { createNotification } = require('../services/notificationService');
+    const { emitToCustomer } = require('../services/socketService');
+    await createNotification(transaction.customer, 'payment_failed', 'Payment failed', `Payment for booking ${booking._id} failed or cancelled`, { bookingId: booking._id, customerId: transaction.customer });
+    emitToCustomer(transaction.customer, 'payment:failed', { bookingId: booking._id, transactionId: transaction.transactionId });
+  } catch (e) {
+    // ignore
+  }
 
   return transaction;
 };

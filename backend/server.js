@@ -72,11 +72,13 @@ const driverRoutes = require('./routes/drivers');
 const paymentRoutes = require('./routes/payments');
 const packageRoutes = require('./routes/packages');
 const adminRoutes = require('./routes/admin');
+const notificationRoutes = require('./routes/notifications');
 app.use('/api/auth', authRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

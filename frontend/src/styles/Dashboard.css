@@ -96,6 +96,17 @@
   color: #333;
 }
 
+/* Navbar notification styles used across app */
+.nav-notification { position: relative; }
+.notif-btn { position: relative; background: transparent; border: none; cursor: pointer; font-size: 1.1rem; }
+.notif-count { position: absolute; top: -6px; right: -6px; background: #d64545; color: #fff; padding: 2px 6px; border-radius: 999px; font-size: 0.75rem; }
+.notif-dropdown { position: absolute; right: 0; top: 36px; width: 320px; max-height: 420px; overflow: auto; background: #fff; border: 1px solid #e6eefc; box-shadow: 0 6px 24px rgba(0,0,0,0.08); border-radius: 8px; padding: 8px; z-index: 50; }
+.notif-item { padding: 8px 10px; border-radius: 6px; border-bottom: 1px solid #f0f4fb; }
+.notif-item.unread { background: #f6fbff; }
+.notif-title { font-weight: 600; color: #1f2a37; }
+.notif-body { color: #4b5563; font-size: 0.92rem; }
+.notif-meta { font-size: 0.8rem; color: #9aa4b2; margin-top: 6px; }
+
 .action-card p {
   font-size: 0.9rem;
   color: #666;

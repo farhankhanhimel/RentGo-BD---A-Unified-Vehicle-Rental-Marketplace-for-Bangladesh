@@ -65,6 +65,18 @@ exports.verifyVendor = async (req, res, next) => {
     vendor.vendorDetails = vendor.vendorDetails || {};
     vendor.vendorDetails.isVerified = !!approve;
     await vendor.save();
+    // notify vendor about approval/rejection
+    try {
+      const { createNotification } = require('../services/notificationService');
+      const { emitToVendor } = require('../services/socketService');
+      const title = approve ? 'Vendor approved' : 'Vendor verification rejected';
+      const body = approve ? 'Your vendor account has been approved' : 'Your vendor verification was rejected. Please review your documents.';
+      await createNotification(vendor._id, 'vendor_verification', title, body, { vendorId: vendor._id, approved: !!approve });
+      emitToVendor(vendor._id, 'vendor:verification', { approved: !!approve });
+    } catch (e) {
+      // ignore
+    }
+
     res.json({ vendor });
   } catch (err) {
     next(err);

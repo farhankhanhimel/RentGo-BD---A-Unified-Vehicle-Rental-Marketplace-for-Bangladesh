@@ -24,7 +24,7 @@ const connectDB = async () => {
     console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('MongoDB connection error:', error);
-    process.exit(1);
+    console.log('Running in degraded mode without MongoDB. Some features may be limited.');
   }
 };
 

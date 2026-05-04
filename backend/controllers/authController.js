@@ -3,6 +3,9 @@ const jwt = require('jsonwebtoken');
 const { sendOTP } = require('../services/twilioService');
 const { uploadImage } = require('../services/cloudinaryService');
 const validator = require('validator');
+const mongoose = require('mongoose');
+
+const tempRegisteredUsers = [];
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -33,6 +36,37 @@ exports.register = async (req, res) => {
 
     if (password.length < 6) {
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    }
+
+    // Temporary fallback: allow registration when DB is not connected.
+    if (mongoose.connection.readyState !== 1) {
+      const duplicate = tempRegisteredUsers.find(
+        (u) => u.email === email || u.phone === phone
+      );
+      if (duplicate) {
+        return res.status(400).json({ message: 'Email or phone already registered' });
+      }
+
+      const tempUser = {
+        _id: `temp_${Date.now()}`,
+        name,
+        email,
+        phone,
+        password,
+        isActive: true,
+        avatar: '',
+        role: role || 'customer',
+        vendorDetails: role === 'vendor' ? vendorDetails : undefined,
+      };
+
+      tempRegisteredUsers.push(tempUser);
+
+      return res.status(201).json({
+        message: 'User registered in temporary mode. Database is currently unavailable.',
+        userId: tempUser._id,
+        phone: tempUser.phone,
+        requiresOTP: false,
+      });
     }
 
     // Check if user already exists
@@ -164,6 +198,28 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
+    // Temporary fallback: allow login for in-memory users when DB is not connected.
+    if (mongoose.connection.readyState !== 1) {
+      const tempUser = tempRegisteredUsers.find((u) => u.email === email);
+
+      if (!tempUser || tempUser.password !== password) {
+        return res.status(401).json({ message: 'Invalid email or password' });
+      }
+
+      return res.json({
+        message: 'Login successful (temporary mode)',
+        token: generateToken(tempUser._id),
+        user: {
+          _id: tempUser._id,
+          name: tempUser.name,
+          email: tempUser.email,
+          phone: tempUser.phone,
+          role: tempUser.role,
+          avatar: tempUser.avatar || '',
+        },
+      });
+    }
+
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
@@ -204,6 +260,23 @@ exports.login = async (req, res) => {
 // @access  Private
 exports.getMe = async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      const tempUser = tempRegisteredUsers.find((u) => String(u._id) === String(req.user._id));
+      if (!tempUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      return res.json({
+        _id: tempUser._id,
+        name: tempUser.name,
+        email: tempUser.email,
+        phone: tempUser.phone,
+        role: tempUser.role,
+        avatar: tempUser.avatar || '',
+        isActive: true,
+      });
+    }
+
     const user = await User.findById(req.user._id);
     res.json(user);
   } catch (error) {

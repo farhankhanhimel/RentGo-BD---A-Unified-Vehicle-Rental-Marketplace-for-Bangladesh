@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 // Protect routes - verify JWT token
 exports.protect = async (req, res, next) => {
@@ -15,6 +16,16 @@ exports.protect = async (req, res, next) => {
 
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Temporary fallback for degraded mode when MongoDB is unavailable.
+      if (mongoose.connection.readyState !== 1) {
+        req.user = {
+          _id: decoded.id,
+          role: 'customer',
+          isActive: true,
+        };
+        return next();
+      }
 
       // Get user from token
       req.user = await User.findById(decoded.id);

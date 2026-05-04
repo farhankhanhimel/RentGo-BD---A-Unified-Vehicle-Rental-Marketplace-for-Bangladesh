@@ -2,12 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { connectSocket } from '../utils/socket';
 import { getAdminEmergencyBookings } from '../services/driverService';
+import {
+  getPendingVendors,
+  verifyVendor,
+  getDisputes,
+  updateDispute,
+  getAnalytics,
+} from '../services/adminService';
 import '../styles/Dashboard.css';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
   const [emergencyBookings, setEmergencyBookings] = useState([]);
   const [liveAlerts, setLiveAlerts] = useState([]);
+  const [pendingVendors, setPendingVendors] = useState([]);
+  const [disputes, setDisputes] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
 
   const refreshEmergencyBookings = async () => {
     try {
@@ -18,8 +28,38 @@ const AdminDashboard = () => {
     }
   };
 
+  const loadPendingVendors = async () => {
+    try {
+      const res = await getPendingVendors();
+      setPendingVendors(res.vendors || []);
+    } catch (err) {
+      setPendingVendors([]);
+    }
+  };
+
+  const loadDisputes = async () => {
+    try {
+      const res = await getDisputes();
+      setDisputes(res.disputes || []);
+    } catch (err) {
+      setDisputes([]);
+    }
+  };
+
+  const loadAnalytics = async () => {
+    try {
+      const res = await getAnalytics();
+      setAnalytics(res);
+    } catch (err) {
+      setAnalytics(null);
+    }
+  };
+
   useEffect(() => {
     refreshEmergencyBookings();
+    loadPendingVendors();
+    loadDisputes();
+    loadAnalytics();
   }, []);
 
   useEffect(() => {
@@ -175,15 +215,32 @@ const AdminDashboard = () => {
         <div className="pending-section">
           <h2>⏳ Pending Actions</h2>
           <div className="pending-list">
-            <div className="pending-item">
-              <span className="badge vendor-badge">Vendor</span>
-              <span className="pending-text">3 vendors awaiting verification</span>
-              <button className="btn-small">Review</button>
-            </div>
+            {pendingVendors.length === 0 ? (
+              <div className="pending-item">
+                <span className="badge vendor-badge">Vendor</span>
+                <span className="pending-text">No vendors awaiting verification</span>
+              </div>
+            ) : (
+              pendingVendors.map((v) => (
+                <div className="pending-item" key={v._id}>
+                  <span className="badge vendor-badge">Vendor</span>
+                  <span className="pending-text">{v.vendorDetails?.businessName || v.name} ({v.email})</span>
+                  <button
+                    className="btn-small"
+                    onClick={async () => {
+                      await verifyVendor(v._id, true);
+                      loadPendingVendors();
+                    }}
+                  >
+                    Approve
+                  </button>
+                </div>
+              ))
+            )}
             <div className="pending-item">
               <span className="badge dispute-badge">Dispute</span>
-              <span className="pending-text">1 active dispute</span>
-              <button className="btn-small">Check</button>
+              <span className="pending-text">{disputes.length} active disputes</span>
+              <button className="btn-small" onClick={loadDisputes}>Refresh</button>
             </div>
             <div className="pending-item">
               <span className="badge report-badge">Report</span>
@@ -191,6 +248,70 @@ const AdminDashboard = () => {
               <button className="btn-small">View</button>
             </div>
           </div>
+        </div>
+
+        <div className="quick-actions-section">
+          <h2>Disputes</h2>
+          {disputes.length === 0 ? (
+            <div className="empty-state">No disputes</div>
+          ) : (
+            disputes.map((d) => (
+              <div className="emergency-card" key={d._id}>
+                <div>
+                  <h3>{d.reason}</h3>
+                  <p>Booking: {d.booking?._id}</p>
+                  <p>Raised by: {d.raisedBy?.name}</p>
+                  <p>Status: {d.status}</p>
+                  <p>Note: {d.resolutionNote}</p>
+                </div>
+                <div className="emergency-actions">
+                  <button
+                    className="btn btn-primary"
+                    onClick={async () => {
+                      await updateDispute(d._id, { status: 'under_review' });
+                      loadDisputes();
+                    }}
+                  >
+                    Mark Under Review
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={async () => {
+                      await updateDispute(d._id, { status: 'resolved' });
+                      loadDisputes();
+                    }}
+                  >
+                    Resolve
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="quick-actions-section">
+          <h2>Platform Analytics</h2>
+          {analytics ? (
+            <div>
+              <p>Total Revenue (30d): ৳{analytics.totalRevenue}</p>
+              <p>Bookings (30d): {analytics.bookings}</p>
+              <p>Active Users (30d): {analytics.activeUsers}</p>
+              <h4>Top Vehicle Types</h4>
+              <ul>
+                {analytics.topVehicleTypes.map((v) => (
+                  <li key={v._id}>{v._id} — {v.count}</li>
+                ))}
+              </ul>
+              <h4>Top Routes</h4>
+              <ul>
+                {analytics.topRoutes.map((r) => (
+                  <li key={r._id}>{r._id} — {r.count}</li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <div className="empty-state">Loading analytics...</div>
+          )}
         </div>
 
         {/* Recent Activities */}

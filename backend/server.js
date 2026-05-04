@@ -70,9 +70,11 @@ app.get('/', (req, res) => {
 const authRoutes = require('./routes/auth');
 const driverRoutes = require('./routes/drivers');
 const paymentRoutes = require('./routes/payments');
+const packageRoutes = require('./routes/packages');
 app.use('/api/auth', authRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/packages', packageRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

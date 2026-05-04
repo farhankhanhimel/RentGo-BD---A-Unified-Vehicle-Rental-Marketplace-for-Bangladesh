@@ -8,6 +8,7 @@ import {
   initiatePayment,
   retryPayment,
 } from '../services/paymentService';
+import { getPackages, getPackageOffers } from '../services/packageService';
 import '../styles/Dashboard.css';
 
 const CustomerDashboard = () => {
@@ -28,6 +29,11 @@ const CustomerDashboard = () => {
     totalAmount: '',
     withDriver: true,
   });
+  const [packages, setPackages] = useState([]);
+  const [loadingPackages, setLoadingPackages] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [offers, setOffers] = useState([]);
+  const [loadingOffers, setLoadingOffers] = useState(false);
 
   const refreshBookings = async () => {
     try {
@@ -49,6 +55,19 @@ const CustomerDashboard = () => {
 
   useEffect(() => {
     refreshBookings();
+    const loadPackages = async () => {
+      setLoadingPackages(true);
+      try {
+        const pkgs = await getPackages();
+        setPackages(pkgs || []);
+      } catch (err) {
+        // ignore
+      } finally {
+        setLoadingPackages(false);
+      }
+    };
+
+    loadPackages();
   }, []);
 
   useEffect(() => {
@@ -246,6 +265,88 @@ const CustomerDashboard = () => {
               ))}
             </div>
           )}
+        </div>
+
+        <div className="quick-actions-section">
+          <h2>Intercity Route Packages</h2>
+          <p className="helper-note">Choose a popular route package to see available vendor offers instantly.</p>
+
+          {loadingPackages ? (
+            <div className="empty-state">Loading packages...</div>
+          ) : packages.length === 0 ? (
+            <div className="empty-state">No packages available.</div>
+          ) : (
+            <div className="package-list">
+              {packages.map((pkg) => (
+                <div key={pkg._id} className={`package-card ${selectedPackage?._id === pkg._id ? 'selected' : ''}`}>
+                  <div>
+                    <h3>{pkg.routeName}</h3>
+                    <p>
+                      {pkg.origin} → {pkg.destination}
+                    </p>
+                    <p>
+                      Price: BDT {pkg.priceMin} - BDT {pkg.priceMax}
+                    </p>
+                    <p>Vehicles: {pkg.recommendedVehicleTypes?.join(', ') || 'Any'}</p>
+                  </div>
+                  <div>
+                    <button
+                      className="btn btn-primary"
+                      onClick={async () => {
+                        setSelectedPackage(pkg);
+                        setLoadingOffers(true);
+                        try {
+                          const res = await getPackageOffers(pkg._id);
+                          setOffers(res.offers || []);
+                        } catch (err) {
+                          setOffers([]);
+                        } finally {
+                          setLoadingOffers(false);
+                        }
+                      }}
+                    >
+                      View Offers
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {selectedPackage && (
+            <div className="offers-panel">
+              <h3>Offers for {selectedPackage.routeName}</h3>
+              {loadingOffers ? (
+                <div className="empty-state">Loading offers...</div>
+              ) : offers.length === 0 ? (
+                <div className="empty-state">No offers found.</div>
+              ) : (
+                <div className="offers-list">
+                  {offers.map((o) => (
+                    <div className="offer-card" key={o.vendorId}>
+                      <div>
+                        <h4>{o.vendorName}</h4>
+                        <p>{o.businessAddress}</p>
+                        <p>Vehicle Types: {o.recommendedVehicleTypes.join(', ')}</p>
+                      </div>
+                      <div>
+                        <div className="offer-price">BDT {o.priceEstimated}</div>
+                        <div className="offer-actions">
+                          <button
+                            className="btn btn-secondary"
+                            onClick={() => alert(`Contact ${o.vendorName} at ${o.contactPhone} to book`)}
+                          >
+                            Contact Vendor
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
         </div>
 
         <div className="quick-actions-section">

@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { connectSocket } from '../utils/socket';
 import {
+  claimEmergencyBooking,
   assignDriverToBooking,
   createDriver,
   deleteDriver,
+  getEmergencyBookings,
   getVendorBookings,
   getVendorDrivers,
 } from '../services/driverService';
@@ -13,6 +16,7 @@ const VendorDashboard = () => {
   const { user } = useAuth();
   const [drivers, setDrivers] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [emergencyQueue, setEmergencyQueue] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(true);
@@ -29,12 +33,14 @@ const VendorDashboard = () => {
 
   const refreshData = async () => {
     try {
-      const [driverData, bookingData] = await Promise.all([
+      const [driverData, bookingData, emergencyData] = await Promise.all([
         getVendorDrivers(),
         getVendorBookings(),
+        getEmergencyBookings(),
       ]);
       setDrivers(driverData);
       setBookings(bookingData);
+      setEmergencyQueue(emergencyData || []);
     } catch (err) {
       setError(err.response?.data?.message || 'Could not load driver data');
     } finally {
@@ -45,6 +51,27 @@ const VendorDashboard = () => {
   useEffect(() => {
     refreshData();
   }, []);
+
+  useEffect(() => {
+    if (!user?._id) {
+      return undefined;
+    }
+
+    const socket = connectSocket({ role: 'vendor', userId: user._id });
+    const handleEmergencyRefresh = () => {
+      refreshData();
+    };
+
+    socket.on('emergency:new', handleEmergencyRefresh);
+    socket.on('emergency:claimed', handleEmergencyRefresh);
+    socket.on('emergency:escalated', handleEmergencyRefresh);
+
+    return () => {
+      socket.off('emergency:new', handleEmergencyRefresh);
+      socket.off('emergency:claimed', handleEmergencyRefresh);
+      socket.off('emergency:escalated', handleEmergencyRefresh);
+    };
+  }, [user?._id]);
 
   const stats = useMemo(() => {
     const totalRatings = drivers.reduce((sum, driver) => sum + (driver.ratings?.length || 0), 0);
@@ -128,6 +155,23 @@ const VendorDashboard = () => {
     }
   };
 
+  const handleClaimEmergency = async (bookingId) => {
+    setError('');
+    setSuccess('');
+
+    try {
+      await claimEmergencyBooking(bookingId);
+      setSuccess('Emergency booking claimed successfully');
+      await refreshData();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to claim emergency booking');
+    }
+  };
+
+  const visibleEmergencyQueue = emergencyQueue.filter(
+    (booking) => booking.emergencyStatus !== 'claimed' || String(booking.vendor?._id || booking.vendor || '') === String(user?._id)
+  );
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
@@ -139,6 +183,44 @@ const VendorDashboard = () => {
       {success && <div className="alert-message success">{success}</div>}
 
       <div className="dashboard-grid">
+        <div className="recent-bookings-section emergency-section">
+          <h2>Emergency Request Queue</h2>
+          {loading ? (
+            <div className="empty-state">
+              <p>Loading emergency requests...</p>
+            </div>
+          ) : visibleEmergencyQueue.length === 0 ? (
+            <div className="empty-state">
+              <p>No emergency requests available right now.</p>
+            </div>
+          ) : (
+            <div className="emergency-list">
+              {visibleEmergencyQueue.map((booking) => (
+                <div className="emergency-card" key={booking._id}>
+                  <div>
+                    <h3>{booking.vehicleName}</h3>
+                    <p>Customer: {booking.customer?.name || 'N/A'}</p>
+                    <p>Pickup: {booking.pickupLocation || 'N/A'}</p>
+                    <p>
+                      Response deadline:{' '}
+                      {booking.responseDueAt ? new Date(booking.responseDueAt).toLocaleString() : 'Pending'}
+                    </p>
+                    <p>Status: {booking.emergencyStatus}</p>
+                  </div>
+                  <div className="emergency-actions">
+                    <span className="emergency-badge">Emergency</span>
+                    {!booking.vendor && (
+                      <button className="btn btn-danger" onClick={() => handleClaimEmergency(booking._id)}>
+                        Claim Now
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="stats-section">
           <h2>Driver Operations Snapshot</h2>
           <div className="stats-grid">

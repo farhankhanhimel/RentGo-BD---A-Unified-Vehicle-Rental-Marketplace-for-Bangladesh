@@ -25,6 +25,31 @@ export const getVendorBookings = async () => {
   return response.data;
 };
 
+export const getEmergencyBookings = async () => {
+  const response = await api.get('/drivers/bookings/emergency');
+  return response.data;
+};
+
+export const getAdminEmergencyBookings = async () => {
+  const response = await api.get('/drivers/bookings/emergency/admin');
+  return response.data;
+};
+
+export const getCustomerBookings = async () => {
+  const response = await api.get('/drivers/bookings/customer');
+  return response.data;
+};
+
+export const createBooking = async (bookingData) => {
+  const response = await api.post('/drivers/bookings', bookingData);
+  return response.data;
+};
+
+export const claimEmergencyBooking = async (bookingId) => {
+  const response = await api.patch(`/drivers/bookings/${bookingId}/claim-emergency`);
+  return response.data;
+};
+
 export const assignDriverToBooking = async (bookingId, driverId) => {
   const response = await api.patch(`/drivers/bookings/${bookingId}/assign-driver`, { driverId });
   return response.data;

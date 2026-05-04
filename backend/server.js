@@ -2,12 +2,38 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const http = require('http');
+const { Server } = require('socket.io');
+const { registerSocketServer } = require('./services/socketService');
+const { bootstrapEmergencyAlerts } = require('./services/emergencyNotificationService');
 
 // Load environment variables
 dotenv.config();
 
 // Initialize Express app
 const app = express();
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  },
+});
+
+registerSocketServer(io);
+
+io.on('connection', (socket) => {
+  socket.on('register', ({ role, userId }) => {
+    if (role) {
+      socket.join(`role:${role}`);
+    }
+
+    if (userId) {
+      socket.join(`${role || 'user'}:${userId}`);
+    }
+  });
+});
 
 // Middleware
 app.use(cors());
@@ -28,7 +54,12 @@ const connectDB = async () => {
   }
 };
 
-connectDB();
+const startServer = async () => {
+  await connectDB();
+  await bootstrapEmergencyAlerts();
+};
+
+startServer();
 
 // Routes
 app.get('/', (req, res) => {
@@ -54,6 +85,6 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

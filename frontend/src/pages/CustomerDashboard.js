@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { connectSocket } from '../utils/socket';
+import { createBooking, getCustomerBookings } from '../services/driverService';
 import {
   getPaymentBookings,
   getReceipt,
@@ -16,10 +18,26 @@ const CustomerDashboard = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [receipt, setReceipt] = useState(null);
+  const [customerBookings, setCustomerBookings] = useState([]);
+  const [emergencySending, setEmergencySending] = useState(false);
+  const [emergencyForm, setEmergencyForm] = useState({
+    vehicleName: '',
+    pickupDate: '',
+    pickupLocation: '',
+    emergencyNotes: '',
+    totalAmount: '',
+    withDriver: true,
+  });
 
   const refreshBookings = async () => {
     try {
-      const response = await getPaymentBookings();
+      const [paymentResponse, bookingResponse] = await Promise.all([
+        getPaymentBookings(),
+        getCustomerBookings(),
+      ]);
+
+      setCustomerBookings(bookingResponse || []);
+      const response = paymentResponse;
       setBookings(response.bookings || []);
       setAdvancePercent(response.advancePaymentPercent || 30);
     } catch (err) {
@@ -32,6 +50,25 @@ const CustomerDashboard = () => {
   useEffect(() => {
     refreshBookings();
   }, []);
+
+  useEffect(() => {
+    if (!user?._id) {
+      return undefined;
+    }
+
+    const socket = connectSocket({ role: 'customer', userId: user._id });
+    const handleEmergencyUpdate = () => {
+      refreshBookings();
+    };
+
+    socket.on('emergency:created', handleEmergencyUpdate);
+    socket.on('emergency:claimed', handleEmergencyUpdate);
+
+    return () => {
+      socket.off('emergency:created', handleEmergencyUpdate);
+      socket.off('emergency:claimed', handleEmergencyUpdate);
+    };
+  }, [user?._id]);
 
   const stats = useMemo(() => {
     const totalBookings = bookings.length;
@@ -81,6 +118,47 @@ const CustomerDashboard = () => {
     }
   };
 
+  const handleEmergencyInput = (event) => {
+    const { name, value, type, checked } = event.target;
+    setEmergencyForm((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const handleEmergencySubmit = async (event) => {
+    event.preventDefault();
+    setEmergencySending(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      await createBooking({
+        ...emergencyForm,
+        isEmergency: true,
+        totalAmount: Number(emergencyForm.totalAmount || 0),
+      });
+
+      setSuccess('Emergency request sent. Nearby vendors and admin have been alerted.');
+      setReceipt(null);
+      setEmergencyForm({
+        vehicleName: '',
+        pickupDate: '',
+        pickupLocation: '',
+        emergencyNotes: '',
+        totalAmount: '',
+        withDriver: true,
+      });
+      await refreshBookings();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Emergency request failed.');
+    } finally {
+      setEmergencySending(false);
+    }
+  };
+
+  const emergencyBookings = customerBookings.filter((booking) => booking.isEmergency);
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
@@ -92,6 +170,84 @@ const CustomerDashboard = () => {
       {success && <div className="alert-message success">{success}</div>}
 
       <div className="dashboard-grid">
+        <div className="quick-actions-section emergency-section">
+          <h2>Emergency Vehicle Request</h2>
+          <p className="helper-note">
+            Broadcast a request to nearby available vendors. Admin gets the same alert for monitoring.
+          </p>
+          <form className="emergency-form" onSubmit={handleEmergencySubmit}>
+            <div className="form-grid">
+              <input
+                name="vehicleName"
+                value={emergencyForm.vehicleName}
+                onChange={handleEmergencyInput}
+                placeholder="Vehicle name or type"
+                required
+              />
+              <input
+                name="pickupDate"
+                type="datetime-local"
+                value={emergencyForm.pickupDate}
+                onChange={handleEmergencyInput}
+                required
+              />
+              <input
+                name="pickupLocation"
+                value={emergencyForm.pickupLocation}
+                onChange={handleEmergencyInput}
+                placeholder="Pickup location"
+                required
+              />
+              <input
+                name="totalAmount"
+                type="number"
+                min="0"
+                value={emergencyForm.totalAmount}
+                onChange={handleEmergencyInput}
+                placeholder="Estimated amount"
+              />
+            </div>
+            <textarea
+              name="emergencyNotes"
+              value={emergencyForm.emergencyNotes}
+              onChange={handleEmergencyInput}
+              placeholder="Emergency details, route notes, or contact instructions"
+              rows="3"
+            />
+            <label className="driver-toggle emergency-toggle">
+              <input
+                name="withDriver"
+                type="checkbox"
+                checked={emergencyForm.withDriver}
+                onChange={handleEmergencyInput}
+              />
+              <span>Need driver support</span>
+            </label>
+            <button className="btn btn-danger" type="submit" disabled={emergencySending}>
+              {emergencySending ? 'Sending emergency request...' : 'Send Emergency Request'}
+            </button>
+          </form>
+
+          {emergencyBookings.length > 0 && (
+            <div className="emergency-list">
+              {emergencyBookings.slice(0, 3).map((booking) => (
+                <div className="emergency-card" key={booking._id}>
+                  <div>
+                    <h3>{booking.vehicleName}</h3>
+                    <p>Pickup: {booking.pickupLocation || 'N/A'}</p>
+                    <p>Status: {booking.emergencyStatus}</p>
+                    <p>
+                      Response by:{' '}
+                      {booking.responseDueAt ? new Date(booking.responseDueAt).toLocaleString() : 'Pending'}
+                    </p>
+                  </div>
+                  <span className="emergency-badge">Emergency</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="quick-actions-section">
           <h2>Payment Methods</h2>
           <div className="action-cards">
@@ -216,6 +372,10 @@ const CustomerDashboard = () => {
             <div className="stat-card">
               <div className="stat-value">{stats.totalBookings}</div>
               <div className="stat-label">Total Bookings</div>
+            </div>
+            <div className="stat-card emergency-stat">
+              <div className="stat-value">{emergencyBookings.length}</div>
+              <div className="stat-label">Emergency Requests</div>
             </div>
             <div className="stat-card">
               <div className="stat-value">BDT {stats.amountSpent.toFixed(0)}</div>

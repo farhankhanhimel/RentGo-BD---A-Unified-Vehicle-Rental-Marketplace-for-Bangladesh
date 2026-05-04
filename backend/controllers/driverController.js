@@ -2,6 +2,8 @@ const Driver = require('../models/Driver');
 const Booking = require('../models/Booking');
 const User = require('../models/User');
 const mongoose = require('mongoose');
+const { notifyEmergencyBooking } = require('../services/emergencyNotificationService');
+const { emitToAdmins, emitToCustomer, emitToVendor } = require('../services/socketService');
 
 const toLanguagesArray = (value) => {
   if (Array.isArray(value)) {
@@ -17,6 +19,40 @@ const toLanguagesArray = (value) => {
 
   return [];
 };
+
+const normalizeText = (value = '') =>
+  String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+
+const scoreLocationMatch = (bookingLocation, vendorAddress) => {
+  const bookingTokens = new Set(normalizeText(bookingLocation));
+  const vendorTokens = normalizeText(vendorAddress);
+
+  if (!bookingTokens.size || !vendorTokens.length) {
+    return 0;
+  }
+
+  return vendorTokens.reduce((score, token) => (bookingTokens.has(token) ? score + 1 : score), 0);
+};
+
+const isVendorNearby = (booking, vendor) => {
+  if (!booking.pickupLocation) {
+    return true;
+  }
+
+  const businessAddress = vendor?.vendorDetails?.businessAddress || '';
+  return scoreLocationMatch(booking.pickupLocation, businessAddress) > 0;
+};
+
+const populateBooking = (bookingQuery) =>
+  bookingQuery
+    .populate('preferredVendor', 'name vendorDetails.businessName')
+    .populate('assignedDriver', 'fullName averageRating photoUrl')
+    .populate('customer', 'name phone')
+    .populate('vendor', 'name vendorDetails.businessName');
 
 exports.createDriver = async (req, res) => {
   try {
@@ -117,20 +153,49 @@ exports.deleteDriver = async (req, res) => {
 
 exports.createBooking = async (req, res) => {
   try {
-    const { vendorId, vehicleName, withDriver, assignedDriverId, pickupDate, totalAmount } = req.body;
+    const {
+      vendorId,
+      vehicleName,
+      withDriver,
+      assignedDriverId,
+      pickupDate,
+      totalAmount,
+      pickupLocation,
+      isEmergency,
+      emergencyNotes,
+      preferredVendorId,
+    } = req.body;
 
-    if (!vendorId || !vehicleName || !pickupDate) {
-      return res.status(400).json({ message: 'vendorId, vehicleName and pickupDate are required' });
+    if (!vehicleName || !pickupDate) {
+      return res.status(400).json({ message: 'vehicleName and pickupDate are required' });
     }
 
-    const vendor = await User.findOne({ _id: vendorId, role: 'vendor' });
-    if (!vendor) {
-      return res.status(404).json({ message: 'Vendor not found' });
+    let vendor = null;
+    if (vendorId) {
+      vendor = await User.findOne({ _id: vendorId, role: 'vendor' });
+      if (!vendor) {
+        return res.status(404).json({ message: 'Vendor not found' });
+      }
+    } else if (!isEmergency) {
+      return res.status(400).json({ message: 'vendorId is required' });
     }
+
+    let preferredVendor = null;
+    if (preferredVendorId) {
+      preferredVendor = await User.findOne({ _id: preferredVendorId, role: 'vendor' });
+      if (!preferredVendor) {
+        return res.status(404).json({ message: 'Preferred vendor not found' });
+      }
+    } else if (vendor) {
+      preferredVendor = vendor;
+    }
+
+    const emergencyFlag = Boolean(isEmergency);
+    const driverVendorId = vendor?._id || preferredVendor?._id || vendorId;
 
     let assignedDriver = null;
     if (withDriver && assignedDriverId) {
-      const driver = await Driver.findOne({ _id: assignedDriverId, vendor: vendorId, isActive: true });
+      const driver = await Driver.findOne({ _id: assignedDriverId, vendor: driverVendorId, isActive: true });
       if (!driver) {
         return res.status(404).json({ message: 'Selected driver is unavailable' });
       }
@@ -139,19 +204,26 @@ exports.createBooking = async (req, res) => {
 
     const booking = await Booking.create({
       customer: req.user._id,
-      vendor: vendorId,
+      vendor: emergencyFlag ? null : vendorId,
+      preferredVendor: preferredVendor?._id || null,
       vehicleName,
+      pickupLocation: pickupLocation || '',
       withDriver: Boolean(withDriver),
       assignedDriver,
       pickupDate,
       totalAmount: Number(totalAmount || 0),
       paymentStatus: 'unpaid',
+      isEmergency: emergencyFlag,
+      emergencyStatus: emergencyFlag ? 'queued' : 'queued',
+      emergencyNotes: emergencyNotes || '',
+      responseDueAt: emergencyFlag ? new Date(Date.now() + 30 * 60 * 1000) : null,
     });
 
-    const populated = await Booking.findById(booking._id)
-      .populate('assignedDriver', 'fullName averageRating photoUrl')
-      .populate('customer', 'name phone')
-      .populate('vendor', 'name vendorDetails.businessName');
+    if (booking.isEmergency) {
+      await notifyEmergencyBooking(booking._id);
+    }
+
+    const populated = await populateBooking(Booking.findById(booking._id));
 
     return res.status(201).json({
       message: 'Booking created successfully',
@@ -165,6 +237,7 @@ exports.createBooking = async (req, res) => {
 exports.getCustomerBookings = async (req, res) => {
   try {
     const bookings = await Booking.find({ customer: req.user._id })
+      .populate('preferredVendor', 'name vendorDetails.businessName')
       .populate('vendor', 'name vendorDetails.businessName')
       .populate('assignedDriver', 'fullName averageRating')
       .sort({ createdAt: -1 });
@@ -178,11 +251,96 @@ exports.getCustomerBookings = async (req, res) => {
 exports.getVendorBookings = async (req, res) => {
   try {
     const bookings = await Booking.find({ vendor: req.user._id })
+      .populate('preferredVendor', 'name vendorDetails.businessName')
       .populate('assignedDriver', 'fullName averageRating photoUrl')
       .populate('customer', 'name phone')
-      .sort({ createdAt: -1 });
+      .sort({ isEmergency: -1, createdAt: -1 });
 
     return res.json(bookings);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getEmergencyBookingsForVendor = async (req, res) => {
+  try {
+    const vendor = await User.findById(req.user._id).select('vendorDetails.businessAddress');
+    const bookings = await Booking.find({
+      isEmergency: true,
+      emergencyStatus: { $in: ['queued', 'broadcast', 'escalated'] },
+      $or: [{ vendor: null }, { vendor: req.user._id }],
+    })
+      .populate('preferredVendor', 'name vendorDetails.businessName')
+      .populate('customer', 'name phone')
+      .sort({ responseDueAt: 1, createdAt: -1 });
+
+    const filteredBookings = bookings.filter((booking) => isVendorNearby(booking, vendor));
+
+    return res.json(filteredBookings);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getEmergencyBookingsForAdmin = async (req, res) => {
+  try {
+    const bookings = await Booking.find({
+      isEmergency: true,
+      emergencyStatus: { $in: ['queued', 'broadcast', 'claimed', 'escalated'] },
+    })
+      .populate('preferredVendor', 'name vendorDetails.businessName')
+      .populate('vendor', 'name vendorDetails.businessName')
+      .populate('customer', 'name phone')
+      .sort({ responseDueAt: 1, createdAt: -1 });
+
+    return res.json(bookings);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+exports.claimEmergencyBooking = async (req, res) => {
+  try {
+    const booking = await Booking.findOne({
+      _id: req.params.bookingId,
+      isEmergency: true,
+      emergencyStatus: { $in: ['queued', 'broadcast', 'escalated'] },
+      $or: [{ vendor: null }, { vendor: req.user._id }],
+    });
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Emergency booking not found or already claimed' });
+    }
+
+    booking.vendor = req.user._id;
+    booking.emergencyStatus = 'claimed';
+    booking.emergencyClaimedAt = new Date();
+    booking.status = 'pending';
+    await booking.save();
+
+    const populated = await populateBooking(Booking.findById(booking._id));
+
+    emitToCustomer(booking.customer, 'emergency:claimed', {
+      bookingId: booking._id,
+      vendorId: req.user._id,
+      emergencyStatus: booking.emergencyStatus,
+    });
+
+    emitToAdmins('emergency:claimed', {
+      bookingId: booking._id,
+      vendorId: req.user._id,
+      emergencyStatus: booking.emergencyStatus,
+    });
+
+    emitToVendor(req.user._id, 'emergency:claimed', {
+      bookingId: booking._id,
+      emergencyStatus: booking.emergencyStatus,
+    });
+
+    return res.json({
+      message: 'Emergency booking claimed successfully',
+      booking: populated,
+    });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

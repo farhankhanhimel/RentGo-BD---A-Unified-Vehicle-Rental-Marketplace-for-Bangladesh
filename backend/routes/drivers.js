@@ -8,16 +8,22 @@ const {
   createBooking,
   getCustomerBookings,
   getVendorBookings,
+  getEmergencyBookingsForVendor,
+  getEmergencyBookingsForAdmin,
+  claimEmergencyBooking,
   assignDriverToBooking,
   addDriverRating,
   getVehicleDriverRatings,
 } = require('../controllers/driverController');
-const { protect, vendor } = require('../middleware/auth');
+const { protect, vendor, admin } = require('../middleware/auth');
 
 router.get('/vehicle/:vendorId', getVehicleDriverRatings);
 
 router.post('/bookings', protect, createBooking);
 router.get('/bookings/customer', protect, getCustomerBookings);
+router.get('/bookings/emergency', protect, vendor, getEmergencyBookingsForVendor);
+router.get('/bookings/emergency/admin', protect, admin, getEmergencyBookingsForAdmin);
+router.patch('/bookings/:bookingId/claim-emergency', protect, vendor, claimEmergencyBooking);
 router.post('/:id/ratings', protect, addDriverRating);
 
 router.get('/', protect, vendor, getVendorDrivers);

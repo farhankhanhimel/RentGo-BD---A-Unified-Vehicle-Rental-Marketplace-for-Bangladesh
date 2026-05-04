@@ -1,9 +1,64 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { connectSocket } from '../utils/socket';
+import { getAdminEmergencyBookings } from '../services/driverService';
 import '../styles/Dashboard.css';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const [emergencyBookings, setEmergencyBookings] = useState([]);
+  const [liveAlerts, setLiveAlerts] = useState([]);
+
+  const refreshEmergencyBookings = async () => {
+    try {
+      const data = await getAdminEmergencyBookings();
+      setEmergencyBookings(data || []);
+    } catch (error) {
+      setEmergencyBookings([]);
+    }
+  };
+
+  useEffect(() => {
+    refreshEmergencyBookings();
+  }, []);
+
+  useEffect(() => {
+    if (!user?._id) {
+      return undefined;
+    }
+
+    const socket = connectSocket({ role: 'admin', userId: user._id });
+
+    const pushAlert = (payload, label) => {
+      setLiveAlerts((prev) => [
+        {
+          id: `${label}-${payload.bookingId}-${Date.now()}`,
+          label,
+          vehicleName: payload.vehicleName,
+          pickupLocation: payload.pickupLocation,
+          emergencyStatus: payload.emergencyStatus,
+          message: payload.message || 'Emergency update received',
+          timestamp: new Date().toISOString(),
+        },
+        ...prev,
+      ].slice(0, 5));
+      refreshEmergencyBookings();
+    };
+
+    const handleNew = (payload) => pushAlert(payload, 'New emergency request');
+    const handleEscalated = (payload) => pushAlert(payload, 'Emergency escalated');
+    const handleClaimed = (payload) => pushAlert(payload, 'Emergency claimed');
+
+    socket.on('emergency:new', handleNew);
+    socket.on('emergency:escalated', handleEscalated);
+    socket.on('emergency:claimed', handleClaimed);
+
+    return () => {
+      socket.off('emergency:new', handleNew);
+      socket.off('emergency:escalated', handleEscalated);
+      socket.off('emergency:claimed', handleClaimed);
+    };
+  }, [user?._id]);
 
   return (
     <div className="dashboard-container">
@@ -63,6 +118,56 @@ const AdminDashboard = () => {
               <div className="stat-value">0</div>
               <div className="stat-label">Total Bookings</div>
             </div>
+            <div className="stat-card emergency-stat">
+              <div className="stat-value">{emergencyBookings.length}</div>
+              <div className="stat-label">Emergency Alerts</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="emergency-section">
+          <h2>Emergency Monitoring</h2>
+          <div className="live-alerts-list">
+            {liveAlerts.length === 0 ? (
+              <div className="empty-state">
+                <p>No live emergency alerts yet.</p>
+              </div>
+            ) : (
+              liveAlerts.map((alert) => (
+                <div className="alert-item" key={alert.id}>
+                  <div>
+                    <h3>{alert.label}</h3>
+                    <p>{alert.vehicleName}</p>
+                    <p>{alert.pickupLocation || 'No pickup location provided'}</p>
+                    <p>Status: {alert.emergencyStatus}</p>
+                    <p>{alert.message}</p>
+                  </div>
+                  <span className="emergency-badge">Live</span>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="emergency-list">
+            {emergencyBookings.length === 0 ? (
+              <div className="empty-state">
+                <p>No emergency bookings currently active.</p>
+              </div>
+            ) : (
+              emergencyBookings.map((booking) => (
+                <div className="emergency-card" key={booking._id}>
+                  <div>
+                    <h3>{booking.vehicleName}</h3>
+                    <p>Customer: {booking.customer?.name || 'N/A'}</p>
+                    <p>Vendor: {booking.vendor?.vendorDetails?.businessName || booking.vendor?.name || 'Broadcasting'}</p>
+                    <p>Pickup: {booking.pickupLocation || 'N/A'}</p>
+                    <p>Deadline: {booking.responseDueAt ? new Date(booking.responseDueAt).toLocaleString() : 'Pending'}</p>
+                    <p>Status: {booking.emergencyStatus}</p>
+                  </div>
+                  <span className="emergency-badge">Monitoring</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

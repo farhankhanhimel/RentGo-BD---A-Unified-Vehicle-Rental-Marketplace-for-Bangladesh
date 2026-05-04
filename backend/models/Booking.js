@@ -11,12 +11,23 @@ const bookingSchema = new mongoose.Schema(
     vendor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      default: null,
+      index: true,
+    },
+    preferredVendor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
       index: true,
     },
     vehicleName: {
       type: String,
       required: [true, 'Vehicle name is required'],
+      trim: true,
+    },
+    pickupLocation: {
+      type: String,
+      default: '',
       trim: true,
     },
     withDriver: {
@@ -31,6 +42,38 @@ const bookingSchema = new mongoose.Schema(
     pickupDate: {
       type: Date,
       required: [true, 'Pickup date is required'],
+    },
+    isEmergency: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    emergencyStatus: {
+      type: String,
+      enum: ['queued', 'broadcast', 'claimed', 'escalated', 'resolved', 'cancelled'],
+      default: 'queued',
+      index: true,
+    },
+    emergencyNotes: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    responseDueAt: {
+      type: Date,
+      default: null,
+    },
+    emergencyAlertSentAt: {
+      type: Date,
+      default: null,
+    },
+    emergencyNotifiedVendorIds: {
+      type: [mongoose.Schema.Types.ObjectId],
+      default: [],
+    },
+    emergencyClaimedAt: {
+      type: Date,
+      default: null,
     },
     totalAmount: {
       type: Number,

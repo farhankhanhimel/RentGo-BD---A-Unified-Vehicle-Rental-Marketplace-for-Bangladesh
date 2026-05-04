@@ -441,6 +441,107 @@
   color: #325340;
 }
 
+.emergency-section {
+  border-left: 4px solid #d64545;
+  background: linear-gradient(180deg, #fff8f8 0%, #ffffff 100%);
+}
+
+.emergency-section h2 {
+  color: #b42318;
+  border-bottom-color: #d64545;
+}
+
+.emergency-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.emergency-form textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 12px 14px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.emergency-form textarea:focus {
+  outline: none;
+  border-color: #d64545;
+  box-shadow: 0 0 0 3px rgba(214, 69, 69, 0.12);
+}
+
+.emergency-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.emergency-list,
+.live-alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.emergency-card,
+.alert-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #f1c6c6;
+  background: #fffafa;
+  box-shadow: 0 4px 16px rgba(214, 69, 69, 0.08);
+}
+
+.emergency-card h3,
+.alert-item h3 {
+  margin: 0 0 8px;
+  color: #8a1f1f;
+}
+
+.emergency-card p,
+.alert-item p {
+  margin: 4px 0;
+  color: #5c5c5c;
+  font-size: 0.92rem;
+}
+
+.emergency-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  min-width: 120px;
+}
+
+.emergency-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #d64545;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.emergency-stat {
+  background: linear-gradient(135deg, #d64545 0%, #8b1c1c 100%);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .dashboard-container {
@@ -477,12 +578,19 @@
 
   .driver-roster-item,
   .assignment-item,
-  .payment-booking-item {
+  .payment-booking-item,
+  .emergency-card,
+  .alert-item {
     align-items: flex-start;
     flex-direction: column;
   }
 
   .payment-actions {
+    min-width: 100%;
+  }
+
+  .emergency-actions {
+    align-items: flex-start;
     min-width: 100%;
   }
 

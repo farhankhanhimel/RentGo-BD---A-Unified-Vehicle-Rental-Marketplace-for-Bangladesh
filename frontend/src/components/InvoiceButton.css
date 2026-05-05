@@ -1,0 +1,108 @@
+.invoice-btn-wrapper {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.invoice-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border: 2px solid var(--primary);
+  border-radius: 10px;
+  background: white;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.invoice-btn:hover:not(:disabled) {
+  background: var(--gradient-primary);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(21, 101, 192, 0.25);
+}
+
+.invoice-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.invoice-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.invoice-btn.loading {
+  background: rgba(21, 101, 192, 0.08);
+  border-color: var(--primary);
+}
+
+/* Variants */
+.invoice-btn.primary {
+  background: var(--gradient-primary);
+  color: white;
+  border-color: transparent;
+}
+
+.invoice-btn.primary:hover:not(:disabled) {
+  box-shadow: 0 8px 20px rgba(21, 101, 192, 0.3);
+  background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%);
+}
+
+.invoice-btn.icon-only {
+  padding: 8px;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Sizes */
+.invoice-btn-wrapper.small .invoice-btn {
+  padding: 5px 12px;
+  font-size: 0.75rem;
+  gap: 5px;
+}
+
+.invoice-btn-wrapper.small .invoice-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.invoice-btn-wrapper.large .invoice-btn {
+  padding: 12px 24px;
+  font-size: 1rem;
+}
+
+.invoice-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.invoice-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(102, 126, 234, 0.3);
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: invoiceSpin 0.8s linear infinite;
+}
+
+@keyframes invoiceSpin {
+  to { transform: rotate(360deg); }
+}
+
+.invoice-error {
+  font-size: 0.7rem;
+  color: #c62828;
+}

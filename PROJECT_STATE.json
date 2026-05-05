@@ -1,0 +1,106 @@
+{
+  "projectRoot": "d:\\HomyraProject",
+  "backend": {
+    "framework": "express",
+    "entryFile": "server.js",
+    "routesDir": "routes/",
+    "modelsDir": "models/",
+    "controllersDir": "controllers/",
+    "middlewareDir": "middleware/",
+    "existingModels": [
+      "User",
+      "Vehicle",
+      "Booking",
+      "Review"
+    ],
+    "existingRoutes": [
+      "/api/auth",
+      "/api/vehicles",
+      "/api/bookings",
+      "/api/vendor/earnings",
+      "/api/reviews"
+    ],
+    "authMiddleware": "middleware/auth.js",
+    "jwtSecret": "process.env.JWT_SECRET",
+    "dbConnection": "config/db.js",
+    "socketIO": true
+  },
+  "frontend": {
+    "framework": "react",
+    "srcDir": "src/",
+    "pagesDir": "src/pages/",
+    "componentsDir": "src/components/",
+    "apiBaseUrl": "process.env.REACT_APP_API_URL",
+    "authContext": "src/context/AuthContext.js",
+    "router": "react-router-dom v6",
+    "existingPages": [
+      "Home",
+      "Login",
+      "Register",
+      "Profile",
+      "CustomerDashboard",
+      "VendorDashboard",
+      "AdminDashboard",
+      "AddVehicle",
+      "Fleet",
+      "EditVehicle",
+      "VehicleDetail",
+      "BookingForm",
+      "MyBookings",
+      "BookingRequests",
+      "Earnings"
+    ]
+  },
+  "env": {
+    "MONGODB_URI": "present",
+    "JWT_SECRET": "present",
+    "CLOUDINARY_CLOUD_NAME": "present (placeholder)",
+    "CLOUDINARY_API_KEY": "present (placeholder)",
+    "CLOUDINARY_API_SECRET": "present (placeholder)",
+    "SOCKET_IO": "present"
+  },
+  "installedPackages": {
+    "backend": [
+      "express",
+      "mongoose",
+      "jsonwebtoken",
+      "bcryptjs",
+      "cloudinary",
+      "multer",
+      "multer-storage-cloudinary",
+      "node-cron",
+      "socket.io",
+      "pdfkit",
+      "json2csv",
+      "twilio",
+      "validator",
+      "cors",
+      "dotenv"
+    ],
+    "frontend": [
+      "react",
+      "axios",
+      "react-router-dom",
+      "swiper",
+      "socket.io-client",
+      "recharts",
+      "react-hook-form",
+      "yup"
+    ]
+  },
+  "teammateDoneFeatures": [
+    "FR-01",
+    "FR-03",
+    "FR-04"
+  ],
+  "homyraCompletedFeatures": [
+    "FR-02",
+    "FR-05",
+    "FR-08",
+    "FR-09",
+    "FR-19",
+    "FR-21"
+  ],
+  "homyraFeaturesToImplement": [],
+  "conflicts": []
+}

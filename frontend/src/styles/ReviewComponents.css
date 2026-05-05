@@ -1,0 +1,431 @@
+/* ═══════════════════════════════════════════════ */
+/* Review Components — Modal, ReviewsList         */
+/* ═══════════════════════════════════════════════ */
+
+/* ─── Review Modal ─── */
+.review-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 1rem;
+}
+
+.review-modal {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideUp 0.3s ease;
+}
+
+@keyframes modalSlideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.review-modal h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.review-modal .close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #718096;
+}
+
+.rating-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+}
+
+.rating-label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.star-selector {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.star-selector .star {
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.15s;
+    color: #e2e8f0;
+}
+
+.star-selector .star.filled {
+    color: #f6ad55;
+}
+
+.star-selector .star.hovered {
+    color: #ed8936;
+    transform: scale(1.15);
+}
+
+.review-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    resize: vertical;
+    margin-top: 0.5rem;
+    font-family: inherit;
+}
+
+.review-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.char-counter {
+    font-size: 0.75rem;
+    color: #a0aec0;
+    text-align: right;
+    margin-top: 0.25rem;
+}
+
+.review-submit-btn {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 1.5rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.review-submit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.review-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ─── Reviews List ─── */
+.reviews-section {
+    margin-top: 0;
+}
+
+.rating-overview {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.rating-big {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #2d3748;
+    line-height: 1;
+}
+
+.rating-big-stars {
+    color: #f6ad55;
+    font-size: 1.2rem;
+}
+
+.rating-count {
+    font-size: 0.85rem;
+    color: #718096;
+}
+
+.rating-breakdown {
+    flex: 1;
+    max-width: 300px;
+}
+
+.breakdown-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.breakdown-label {
+    font-size: 0.8rem;
+    color: #718096;
+    min-width: 100px;
+}
+
+.breakdown-bar {
+    flex: 1;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.breakdown-bar-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #f6ad55, #ed8936);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.breakdown-score {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4a5568;
+    min-width: 25px;
+}
+
+.review-card {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 1.25rem 0;
+}
+
+.review-card:last-child {
+    border-bottom: none;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.reviewer-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.reviewer-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.review-date {
+    font-size: 0.8rem;
+    color: #a0aec0;
+    margin-left: auto;
+}
+
+.review-stars {
+    color: #f6ad55;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.review-comment {
+    font-size: 0.9rem;
+    color: #4a5568;
+    line-height: 1.5;
+}
+
+.review-subscores {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+.review-subscores .chip {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    background: #f7fafc;
+    border-radius: 6px;
+    color: #718096;
+}
+
+/* ─── Availability Calendar ─── */
+.calendar-container {
+    width: 100%;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.calendar-header h3 {
+    font-size: 1.1rem;
+    color: #2d3748;
+}
+
+.calendar-nav-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.calendar-nav-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.calendar-day-label {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #a0aec0;
+    padding: 0.5rem 0;
+}
+
+.calendar-day {
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-day.empty {
+    cursor: default;
+}
+
+.calendar-day.available {
+    background: #f0fff4;
+    color: #22543d;
+}
+
+.calendar-day.available:hover {
+    background: #c6f6d5;
+}
+
+.calendar-day.booked {
+    background: #fed7d7;
+    color: #9b2c2c;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+.calendar-day.pending {
+    background: #fef3c7;
+    color: #92400e;
+    cursor: not-allowed;
+}
+
+.calendar-day.selected {
+    background: #667eea;
+    color: #fff;
+    font-weight: 700;
+}
+
+.calendar-day.in-range {
+    background: #ebf4ff;
+    color: #3182ce;
+}
+
+.calendar-day.past {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.calendar-legend {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: #718096;
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+.legend-dot.available {
+    background: #f0fff4;
+    border: 1px solid #c6f6d5;
+}
+
+.legend-dot.booked {
+    background: #fed7d7;
+}
+
+.legend-dot.pending {
+    background: #fef3c7;
+}
+
+.legend-dot.selected {
+    background: #667eea;
+}
+
+@media (max-width: 768px) {
+    .rating-overview {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .rating-breakdown {
+        max-width: 100%;
+    }
+}

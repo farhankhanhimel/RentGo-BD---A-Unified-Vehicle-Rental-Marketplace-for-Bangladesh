@@ -1,0 +1,131 @@
+.comparison-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+}
+
+.comparison-hero {
+  border-radius: 18px;
+  padding: 20px;
+  color: #f8fafc;
+  background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #0369a1 100%);
+}
+
+.comparison-hero h1 {
+  margin: 0 0 8px;
+}
+
+.comparison-hero p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.comparison-form {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.comparison-form input,
+.comparison-form select,
+.comparison-form button {
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.comparison-form button {
+  cursor: pointer;
+  color: #fff;
+  background: #0f172a;
+}
+
+.comparison-route-meta {
+  margin-top: 14px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-weight: 600;
+  color: #334155;
+}
+
+.comparison-error {
+  margin-top: 12px;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.offer-picker {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.offer-chip {
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 10px;
+  display: grid;
+  gap: 4px;
+  background: #fff;
+}
+
+.offer-chip.active {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+}
+
+.offer-chip input {
+  justify-self: start;
+}
+
+.offer-chip small {
+  color: #64748b;
+}
+
+.comparison-table-wrap {
+  margin-top: 18px;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 740px;
+}
+
+.comparison-table th,
+.comparison-table td {
+  border-bottom: 1px solid #f1f5f9;
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.comparison-table th {
+  background: #f8fafc;
+}
+
+.comparison-table td:first-child {
+  font-weight: 600;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+@media (max-width: 960px) {
+  .comparison-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .comparison-form {
+    grid-template-columns: 1fr;
+  }
+}

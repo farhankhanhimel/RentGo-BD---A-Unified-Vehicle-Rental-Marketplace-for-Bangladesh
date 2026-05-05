@@ -1,0 +1,79 @@
+/* Verified Badge Component */
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.vb-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.vb-label {
+  color: var(--primary-dark);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: -0.005em;
+}
+
+/* Variants */
+.vb-default {
+  display: inline-flex;
+}
+
+.vb-inline {
+  background: linear-gradient(135deg, rgba(21, 101, 192, 0.08) 0%, rgba(26, 115, 232, 0.08) 100%);
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(21, 101, 192, 0.15);
+}
+
+.vb-card {
+  background: linear-gradient(135deg, #1565c0 0%, #1a73e8 100%);
+  padding: 6px 14px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(21, 101, 192, 0.2);
+}
+
+.vb-card .vb-label {
+  color: white;
+}
+
+.vb-card .vb-icon {
+  filter: brightness(1.2);
+}
+
+/* Sizes */
+.vb-small {
+  gap: 4px;
+}
+
+.vb-small .vb-label {
+  font-size: 12px;
+}
+
+.vb-large {
+  gap: 8px;
+}
+
+.vb-large .vb-label {
+  font-size: 14px;
+}
+
+/* Shimmer animation for verified badge */
+.verified-badge .vb-icon {
+  animation: vbShimmer 3s ease-in-out infinite;
+}
+
+@keyframes vbShimmer {
+  0%, 100% { 
+    filter: drop-shadow(0 0 0 transparent);
+    transform: scale(1);
+  }
+  50% { 
+    filter: drop-shadow(0 0 6px rgba(21, 101, 192, 0.5));
+    transform: scale(1.05);
+  }
+}

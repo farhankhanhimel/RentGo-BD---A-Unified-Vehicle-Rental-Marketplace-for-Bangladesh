@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Booking = require('../models/Booking');
 const Vehicle = require('../models/Vehicle');
+const RoutePackage = require('../models/RoutePackage');
 const { validateCoupon } = require('../utils/couponValidator');
 const { checkVehicleAvailability } = require('../utils/availabilityChecker');
 const { notifyEmergencyBooking } = require('../services/emergencyNotificationService');
@@ -67,6 +68,7 @@ exports.createBooking = async (req, res) => {
             couponCode,
             isEmergency,
             emergencyNotes,
+            routePackage,
         } = req.body;
 
         // Fetch vehicle
@@ -111,11 +113,36 @@ exports.createBooking = async (req, res) => {
         const end = new Date(returnDate);
         const days = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
 
-        const baseRate = vehicle.pricing.dailyRate * days;
-        const driverFee = withDriver
+        let packageDoc = null;
+        if (routePackage?.id && mongoose.isValidObjectId(routePackage.id)) {
+            packageDoc = await RoutePackage.findOne({
+                _id: routePackage.id,
+                active: true,
+            });
+
+            if (!packageDoc) {
+                return res.status(404).json({ message: 'Route package not found or inactive' });
+            }
+
+            if (packageDoc.vehicle && packageDoc.vehicle.toString() !== vehicle._id.toString()) {
+                return res.status(400).json({ message: 'Selected vehicle does not belong to this route package' });
+            }
+
+            if (packageDoc.vendor && vehicle.vendor.toString() !== packageDoc.vendor.toString()) {
+                return res.status(400).json({ message: 'Selected vehicle does not belong to this route package vendor' });
+            }
+        }
+
+        const packageUnits = packageDoc
+            ? Math.max(1, Math.ceil(days / Math.max(1, packageDoc.durationDays || 1)))
+            : 1;
+        const baseRate = packageDoc
+            ? packageDoc.priceMin * packageUnits
+            : vehicle.pricing.dailyRate * days;
+        const driverFee = withDriver && !(packageDoc?.withDriver)
             ? (vehicle.pricing.driverSurcharge || 0) * days
             : 0;
-        const serviceFee = Math.round(baseRate * 0.08);
+        const serviceFee = Math.round((baseRate + driverFee) * 0.08);
 
         let couponDiscount = 0;
         let appliedCouponCode = '';
@@ -142,6 +169,7 @@ exports.createBooking = async (req, res) => {
         const expiresAt = bookingMode === 'request'
             ? new Date(Date.now() + 24 * 60 * 60 * 1000)
             : null;
+        let booking;
 
         // Atomic-like: second availability check right before create
         let booking;
@@ -207,13 +235,20 @@ exports.createBooking = async (req, res) => {
                     endDate: returnDate,
                     tripType,
                     withDriver,
-                    specialNotes,
+                    specialNotes: packageDoc
+                        ? `${specialNotes ? `${specialNotes} | ` : ''}Route package: ${packageDoc.routeName}`
+                        : specialNotes,
                 },
             };
 
             booking = await Booking.create(bookingData);
         } catch (error) {
             throw error;
+        }
+
+        if (packageDoc) {
+            packageDoc.bookingsCount = (packageDoc.bookingsCount || 0) + 1;
+            await packageDoc.save();
         }
 
         if (emergencyRequested) {

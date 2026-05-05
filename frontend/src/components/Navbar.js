@@ -44,9 +44,14 @@ const Navbar = () => {
                   </li>
                 )}
                 {user?.role === 'vendor' && (
-                  <li>
-                    <Link to="/vendor/drivers">Drivers</Link>
-                  </li>
+                  <>
+                    <li>
+                      <Link to="/vendor/route-packages">Route Offers</Link>
+                    </li>
+                    <li>
+                      <Link to="/vendor/drivers">Drivers</Link>
+                    </li>
+                  </>
                 )}
                 <li>
                   <Link to={dashboardPath}>Dashboard</Link>

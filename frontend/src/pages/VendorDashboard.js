@@ -54,6 +54,12 @@ const VendorDashboard = () => {
               <p>View active listing market</p>
             </div>
 
+            <div className="action-card bookings" onClick={() => navigate('/vendor/route-packages')} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && navigate('/vendor/route-packages')}>
+              <div className="icon">Route</div>
+              <h3>Route Offers</h3>
+              <p>Create intercity packages</p>
+            </div>
+
             <div className="action-card bookings" onClick={() => navigate('/vendor/bookings')} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && navigate('/vendor/bookings')}>
               <div className="icon">📊</div>
               <h3>Bookings</h3>

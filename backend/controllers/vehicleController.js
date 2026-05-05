@@ -289,6 +289,52 @@ const getVehicle = async (req, res) => {
   }
 };
 
+// @desc    Get vendor's own vehicles
+// @route   GET /api/vehicles/my
+// @access  Private (vendor)
+const getVendorVehicles = async (req, res) => {
+  try {
+    const vehicles = await Vehicle.find({ vendor: req.user._id })
+      .sort({ createdAt: -1 });
+
+    const formattedVehicles = vehicles.map((vehicleDoc) => {
+      const vehicle = vehicleDoc.toObject();
+      const status = !vehicle.isAvailable
+        ? 'deactivated'
+        : vehicle.isApproved
+          ? 'approved'
+          : 'pending_approval';
+
+      return {
+        ...vehicle,
+        status,
+        specs: {
+          make: vehicle.make,
+          model: vehicle.model,
+          year: vehicle.year,
+          seats: vehicle.features?.seats,
+          fuelType: vehicle.features?.fuelType,
+          transmission: vehicle.features?.transmission,
+          ac: vehicle.features?.ac,
+          registrationNo: vehicle.registration?.number,
+        },
+        media: {
+          photos: (vehicle.photos || []).map((photo) => (typeof photo === 'string' ? { url: photo } : photo)),
+          primaryPhotoIndex: 0,
+        },
+        meta: {
+          totalBookings: 0,
+        },
+      };
+    });
+
+    res.json({ vehicles: formattedVehicles });
+  } catch (error) {
+    console.error('Error fetching vendor vehicles:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 // @desc    List pending vehicles for moderation
 // @route   GET /api/vehicles/admin/pending
 // @access  Private (admin)
@@ -353,6 +399,7 @@ const adminRejectVehicle = async (req, res) => {
 module.exports = {
   getVehicles,
   getVehicle,
+  getVendorVehicles,
   updateVehicle,
   getPendingVehicles,
   adminApproveVehicle,

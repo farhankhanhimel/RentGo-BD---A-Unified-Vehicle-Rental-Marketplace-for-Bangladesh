@@ -15,12 +15,12 @@ const BookingForm = () => {
     const [formData, setFormData] = useState({
         startDate: state.dates?.start || '',
         endDate: state.dates?.end || '',
-        pickupAddress: '',
-        dropAddress: '',
-        tripType: 'tourism',
+        pickupAddress: state.pickupAddress || '',
+        dropAddress: state.dropAddress || '',
+        tripType: state.tripType || 'tourism',
         withDriver: state.withDriver || false,
         isEmergency: state.isEmergency || false,
-        specialNotes: '',
+        specialNotes: state.specialNotes || '',
         bookingMode: state.bookingMode || 'request',
     });
 
@@ -67,6 +67,7 @@ const BookingForm = () => {
                 },
                 isEmergency: formData.isEmergency,
                 emergencyNotes: formData.isEmergency ? formData.specialNotes : '',
+                routePackage: state.routePackage,
             });
 
             setToast({ type: 'success', msg: res.data.message });
@@ -92,6 +93,19 @@ const BookingForm = () => {
             {toast && <div className={`toast ${toast.type}`}>{toast.msg}</div>}
 
             <h1>Book {state.vehicleName || 'Vehicle'}</h1>
+
+            {state.routePackage && (
+                <div className="booking-card">
+                    <h2>Intercity Package</h2>
+                    <div className="cost-summary-card">
+                        <div className="cost-row"><span>Route</span><span>{state.routePackage.routeName}</span></div>
+                        <div className="cost-row"><span>From</span><span>{state.routePackage.origin}</span></div>
+                        <div className="cost-row"><span>To</span><span>{state.routePackage.destination}</span></div>
+                        <div className="cost-row"><span>Passengers</span><span>{state.routePackage.passengers}</span></div>
+                        {state.routePackage.returnTrip && <div className="cost-row"><span>Return support</span><span>Requested</span></div>}
+                    </div>
+                </div>
+            )}
 
             <span className={`booking-mode-badge ${formData.bookingMode}`}>
                 {formData.bookingMode === 'instant' ? '⚡ Instant Booking' : '📨 Request Booking — vendor confirms within 24h'}

@@ -1,0 +1,251 @@
+.ic-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 20px 56px;
+  color: #182235;
+}
+
+.ic-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  padding: 24px;
+  border: 1px solid #d8e2f0;
+  border-radius: 8px;
+  background: #f7fbff;
+}
+
+.ic-header h1,
+.ic-header p,
+.ic-card h2,
+.ic-card h3,
+.ic-chat h4 {
+  margin: 0;
+}
+
+.ic-header p {
+  margin-top: 6px;
+  color: #5d6b7c;
+}
+
+.ic-header button,
+.ic-notice button,
+.ic-offer-form button,
+.ic-offer-action button,
+.ic-chat-input button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 14px;
+  background: #0f766e;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ic-notice {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #ecfdf5;
+  color: #166534;
+}
+
+.ic-notice button {
+  background: transparent;
+  color: #166534;
+}
+
+.ic-empty,
+.ic-card {
+  margin-top: 18px;
+  background: #fff;
+  border: 1px solid #d8e2f0;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(24, 34, 53, 0.06);
+}
+
+.ic-empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: #5d6b7c;
+}
+
+.ic-grid {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.ic-card {
+  padding: 18px;
+}
+
+.ic-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.ic-status {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.ic-status.accepted {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.ic-status.negotiating {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.ic-details,
+.ic-offer-card,
+.ic-chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+.ic-details {
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.ic-details span {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.ic-notes {
+  color: #5d6b7c;
+}
+
+.ic-offer-form,
+.ic-offers,
+.ic-chat {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.ic-offer-form {
+  display: grid;
+  gap: 10px;
+}
+
+.ic-offer-form input,
+.ic-offer-form select,
+.ic-offer-form textarea,
+.ic-chat-input input {
+  width: 100%;
+  border: 1px solid #ccd7e5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.ic-offer-form textarea {
+  min-height: 86px;
+  resize: vertical;
+}
+
+.ic-offer-card {
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.ic-offer-card span,
+.ic-offer-card p {
+  display: block;
+  margin: 4px 0 0;
+  color: #5d6b7c;
+}
+
+.ic-offer-action {
+  min-width: 150px;
+  text-align: right;
+}
+
+.ic-offer-action strong,
+.ic-accepted {
+  display: block;
+}
+
+.ic-accepted {
+  margin-top: 8px;
+  color: #166534;
+  font-weight: 800;
+}
+
+.ic-message-list {
+  display: grid;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.ic-message {
+  padding: 9px 10px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+}
+
+.ic-message strong,
+.ic-message span {
+  display: block;
+}
+
+.ic-message span {
+  margin-top: 3px;
+  color: #344256;
+}
+
+.ic-chat-input {
+  margin-top: 10px;
+}
+
+.ic-muted {
+  color: #64748b;
+}
+
+@media (max-width: 720px) {
+  .ic-header,
+  .ic-card-top,
+  .ic-offer-card,
+  .ic-chat-input {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ic-offer-action {
+    text-align: left;
+  }
+}

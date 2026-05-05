@@ -4,6 +4,7 @@ const { protect, vendor, admin } = require('../middleware/auth');
 const {
 	getVehicles,
 	getVehicle,
+	getVendorVehicles,
 	updateVehicle,
 	getPendingVehicles,
 	adminApproveVehicle,
@@ -13,6 +14,7 @@ const {
 // Public routes
 router.get('/', getVehicles);
 router.get('/admin/pending', protect, admin, getPendingVehicles);
+router.get('/my', protect, vendor, getVendorVehicles);
 router.get('/:id', getVehicle);
 
 // Vendor-only route — triggers wishlist notifications on price/availability changes

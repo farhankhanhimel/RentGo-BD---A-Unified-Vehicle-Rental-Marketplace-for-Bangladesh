@@ -25,6 +25,7 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Notifications from './pages/Notifications';
 import ManageEventPackages from './pages/ManageEventPackages';
+import ManageRoutePackages from './pages/ManageRoutePackages';
 import VendorVerification from './pages/VendorVerification';
 import AdminVerificationQueue from './pages/AdminVerificationQueue';
 import VehicleDetail from './pages/VehicleDetail';
@@ -158,6 +159,15 @@ function AppContent() {
               element={
                 <ProtectedRoute role="vendor">
                   <ManageEventPackages />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/vendor/route-packages"
+              element={
+                <ProtectedRoute role="vendor">
+                  <ManageRoutePackages />
                 </ProtectedRoute>
               }
             />

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationBell from './NotificationBell';
+import ChatBadge from './ChatBadge';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -55,6 +56,9 @@ const Navbar = () => {
                 )}
                 <li>
                   <Link to={dashboardPath}>Dashboard</Link>
+                </li>
+                <li>
+                  <ChatBadge />
                 </li>
                 <li>
                   <NotificationBell />

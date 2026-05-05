@@ -16,7 +16,7 @@ const VendorDashboard = () => {
     <div className="dashboard-container">
       <div className="dashboard-header">
         <div>
-          <h1>Welcome, {user?.name}! 🏢</h1>
+          <h1>Welcome, {user?.name}! </h1>
           <p className="dashboard-subtitle">Manage your fleet and bookings</p>
         </div>
         <div className="dashboard-header-actions">

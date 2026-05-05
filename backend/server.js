@@ -45,6 +45,7 @@ const paymentRoutes = require('./routes/payments');
 const verificationRoutes = require('./routes/verification');
 const vehicleRoutes = require('./routes/vehicles');
 const adminRoutes = require('./routes/admin');
+const messageRoutes = require('./routes/messages');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
@@ -63,6 +64,7 @@ app.use('/api/drivers', driverRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/verification', verificationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/messages', messageRoutes);
 
 const io = new Server(server, {
   cors: {
@@ -98,7 +100,41 @@ io.on('connection', (socket) => {
       socket.join('admin');
     }
   });
+
+  // Chat message handling
+  socket.on('send_message', (data) => {
+    const { senderId, recipientId, content, type = 'text' } = data;
+    io.to(`user:${recipientId}`).emit('receive_message', {
+      senderId,
+      content,
+      type,
+      timestamp: new Date(),
+    });
+  });
+
+  // Typing indicator
+  socket.on('user_typing', (data) => {
+    const { senderId, recipientId } = data;
+    io.to(`user:${recipientId}`).emit('user_typing', { senderId });
+  });
+
+  socket.on('user_stopped_typing', (data) => {
+    const { senderId, recipientId } = data;
+    io.to(`user:${recipientId}`).emit('user_stopped_typing', { senderId });
+  });
+
+  // Offer handling
+  socket.on('send_offer', (data) => {
+    const { senderId, recipientId, price, details } = data;
+    io.to(`user:${recipientId}`).emit('receive_offer', {
+      senderId,
+      price,
+      details,
+      timestamp: new Date(),
+    });
+  });
 });
+
 
 // Error handling middleware
 app.use(errorHandler);

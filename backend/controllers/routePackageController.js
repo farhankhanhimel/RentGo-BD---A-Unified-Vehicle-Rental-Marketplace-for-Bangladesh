@@ -296,3 +296,211 @@ exports.getRoutePackageOffers = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+/**
+ * Customer books/accepts a route package
+ */
+exports.bookRoutePackage = async (req, res) => {
+  try {
+    const { packageId, travelDate, passengers = 1, specialRequests = '' } = req.body;
+
+    if (!packageId || !travelDate) {
+      return res.status(400).json({ message: 'Package ID and travel date are required' });
+    }
+
+    const routePackage = await RoutePackage.findById(packageId);
+    if (!routePackage) {
+      return res.status(404).json({ message: 'Route package not found' });
+    }
+
+    if (passengers > routePackage.maxPassengers) {
+      return res.status(400).json({
+        message: `Maximum passengers allowed: ${routePackage.maxPassengers}`,
+      });
+    }
+
+    const RoutePackageBooking = require('../models/RoutePackageBooking');
+    const bookingId = `RPB-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    const totalAmount = routePackage.priceMin * passengers;
+
+    const booking = new RoutePackageBooking({
+      package: packageId,
+      customer: req.user._id,
+      vendor: routePackage.vendor,
+      bookingId,
+      travelDate,
+      passengers,
+      specialRequests,
+      pricing: {
+        packagePrice: routePackage.priceMin,
+        additionalCharges: 0,
+        discount: 0,
+        totalAmount,
+        deposit: Math.ceil(totalAmount * 0.2), // 20% deposit
+        depositPaid: false,
+      },
+      status: 'pending',
+      contactInfo: {
+        name: req.user.name,
+        phone: req.user.phone,
+        email: req.user.email,
+      },
+    });
+
+    await booking.save();
+    await booking.populate([
+      { path: 'package' },
+      { path: 'customer', select: 'name email phone avatar' },
+      { path: 'vendor', select: 'name email phone avatar vendorDetails.businessName' },
+    ]);
+
+    // Notify vendor
+    const { emitToVendor } = require('../services/socketService');
+    emitToVendor(routePackage.vendor.toString(), 'new_route_booking', {
+      booking: booking.toObject(),
+      customerName: req.user.name,
+    });
+
+    return res.status(201).json(booking);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * Get customer's route package bookings
+ */
+exports.getMyRoutePackageBookings = async (req, res) => {
+  try {
+    const RoutePackageBooking = require('../models/RoutePackageBooking');
+    const bookings = await RoutePackageBooking.find({ customer: req.user._id })
+      .populate('package', 'routeName origin destination inclusions withDriver')
+      .populate('vendor', 'name email phone avatar vendorDetails.businessName')
+      .sort({ createdAt: -1 });
+
+    return res.json({ bookings });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * Get vendor's route package bookings
+ */
+exports.getVendorRoutePackageBookings = async (req, res) => {
+  try {
+    const RoutePackageBooking = require('../models/RoutePackageBooking');
+    const bookings = await RoutePackageBooking.find({ vendor: req.user._id })
+      .populate('package', 'routeName origin destination inclusions withDriver')
+      .populate('customer', 'name email phone avatar')
+      .sort({ createdAt: -1 });
+
+    return res.json({ bookings });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * Get route package booking detail
+ */
+exports.getRoutePackageBookingDetail = async (req, res) => {
+  try {
+    const RoutePackageBooking = require('../models/RoutePackageBooking');
+    const booking = await RoutePackageBooking.findById(req.params.bookingId)
+      .populate('package')
+      .populate('customer', 'name email phone avatar')
+      .populate('vendor', 'name email phone avatar vendorDetails.businessName');
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    // Check access
+    const isCustomer = booking.customer._id.toString() === req.user._id.toString();
+    const isVendor = booking.vendor._id.toString() === req.user._id.toString();
+
+    if (!isCustomer && !isVendor) {
+      return res.status(403).json({ message: 'Not authorized to view this booking' });
+    }
+
+    return res.json(booking);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * Vendor confirms/accepts route package booking
+ */
+exports.confirmRoutePackageBooking = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const { status } = req.body;
+
+    if (!['confirmed', 'declined'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status. Use confirmed or declined.' });
+    }
+
+    const RoutePackageBooking = require('../models/RoutePackageBooking');
+    const booking = await RoutePackageBooking.findById(bookingId);
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    // Check vendor ownership
+    if (booking.vendor.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to update this booking' });
+    }
+
+    booking.status = status;
+    await booking.save();
+    await booking.populate([
+      { path: 'package' },
+      { path: 'customer', select: 'name email phone avatar' },
+      { path: 'vendor', select: 'name email phone avatar' },
+    ]);
+
+    // Notify customer
+    const { emitToCustomer } = require('../services/socketService');
+    emitToCustomer(booking.customer._id.toString(), 'booking_status_updated', {
+      booking: booking.toObject(),
+      status,
+    });
+
+    return res.json(booking);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * Cancel route package booking
+ */
+exports.cancelRoutePackageBooking = async (req, res) => {
+  try {
+    const RoutePackageBooking = require('../models/RoutePackageBooking');
+    const booking = await RoutePackageBooking.findById(req.params.bookingId);
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    const isCustomer = booking.customer.toString() === req.user._id.toString();
+    const isVendor = booking.vendor.toString() === req.user._id.toString();
+
+    if (!isCustomer && !isVendor) {
+      return res.status(403).json({ message: 'Not authorized to cancel this booking' });
+    }
+
+    booking.status = 'cancelled';
+    await booking.save();
+
+    return res.json({ message: 'Booking cancelled', booking });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+

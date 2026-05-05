@@ -24,6 +24,7 @@ import Contact from './pages/Contact';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Notifications from './pages/Notifications';
+import Messages from './pages/Messages';
 import ManageEventPackages from './pages/ManageEventPackages';
 import ManageRoutePackages from './pages/ManageRoutePackages';
 import VendorVerification from './pages/VendorVerification';
@@ -117,6 +118,8 @@ function AppContent() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+            <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+            <Route path="/messages/:userId" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
 
             <Route 
               path="/wishlist" 

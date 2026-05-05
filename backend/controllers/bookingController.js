@@ -172,7 +172,6 @@ exports.createBooking = async (req, res) => {
         let booking;
 
         // Atomic-like: second availability check right before create
-        let booking;
         try {
             const { available: stillAvailable } = await checkVehicleAvailability(
                 vehicleId,

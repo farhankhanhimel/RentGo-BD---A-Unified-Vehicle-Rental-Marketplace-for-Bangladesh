@@ -34,6 +34,9 @@ import RoutePackages from './pages/RoutePackages';
 import VendorDrivers from './pages/vendor/Drivers';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import AdvancedSearch from './pages/AdvancedSearch';
+import VendorCompare from './pages/VendorCompare';
+import CostCalculator from './pages/CostCalculator';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, role = null }) => {
@@ -106,8 +109,11 @@ function AppContent() {
             />
 
             {/* Feature Pages */}
-            <Route path="/fare-estimator" element={<FareEstimator />} />
-            <Route path="/vehicle-comparison" element={<VehicleComparison />} />
+            <Route path="/advanced-search" element={<AdvancedSearch />} />
+            <Route path="/vendor-compare" element={<VendorCompare />} />
+            <Route path="/checkout/:id" element={<CostCalculator />} />
+            {/* <Route path="/fare-estimator" element={<FareEstimator />} /> */}
+            {/* <Route path="/vehicle-comparison" element={<VehicleComparison />} /> */}
             <Route path="/search" element={<Search />} />
             <Route path="/route-packages" element={<RoutePackages />} />
             <Route path="/checkout/:bookingId" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />

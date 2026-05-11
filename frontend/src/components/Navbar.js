@@ -24,12 +24,26 @@ const Navbar = () => {
             <li>
               <Link to="/">Home</Link>
             </li>
+            
+            {/* --- YOUR NEW FEATURE LINKS --- */}
             <li>
+              <Link to="/advanced-search">Advanced Search</Link>
+            </li>
+            <li>
+              <Link to="/vendor-compare">Multi-Vendor Compare</Link>
+            </li>
+            {/* ------------------------------ */}
+
+            {/* --- HIDDEN GROUPMATE LINKS --- */}
+            {/* <li>
               <Link to="/fare-estimator">Fare Estimator</Link>
             </li>
             <li>
               <Link to="/vehicle-comparison">Compare Vendors</Link>
             </li>
+            */}
+            {/* ------------------------------ */}
+
             <li>
               <Link to="/route-packages">Route Packages</Link>
             </li>

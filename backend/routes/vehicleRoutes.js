@@ -13,12 +13,17 @@ const {
     getVehicleDetail,
     getVehiclePriceEstimate,
     getVehicleAvailability,
+    addVehicle // <--- Imported your backdoor function here
 } = require('../controllers/vehicleController');
 const { protect, admin, vendor } = require('../middleware/auth');
 const { uploadVehiclePhotos } = require('../middleware/upload');
 
 // Public routes (non-parameterized first)
 router.get('/', getApprovedVehicles);
+
+// === BACKDOOR POSTMAN ROUTE ===
+router.post('/', addVehicle);
+// ===================================
 
 // Admin routes (non-parameterized)
 router.get('/admin/pending', protect, admin, getPendingVehicles);

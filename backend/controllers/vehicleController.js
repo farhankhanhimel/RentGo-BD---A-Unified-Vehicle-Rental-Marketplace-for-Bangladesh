@@ -396,6 +396,22 @@ const adminRejectVehicle = async (req, res) => {
   }
 };
 
+// @desc    Create a new vehicle (for testing/injection)
+// @route   POST /api/vehicles
+// @access  Public (temporarily for your presentation)
+const addVehicle = async (req, res) => {
+  try {
+    const newVehicle = await Vehicle.create(req.body);
+    res.status(201).json({ success: true, vehicle: newVehicle });
+  } catch (error) {
+    console.error('Error adding vehicle:', error);
+    res.status(400).json({ message: 'Failed to add vehicle', error: error.message });
+  }
+};
+
+
+
+
 module.exports = {
   getVehicles,
   getVehicle,
@@ -404,4 +420,5 @@ module.exports = {
   getPendingVehicles,
   adminApproveVehicle,
   adminRejectVehicle,
+  addVehicle,
 };

@@ -7,6 +7,7 @@ const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 const { registerSocketServer } = require('./services/socketService');
 
+
 // Load environment variables
 dotenv.config();
 
@@ -46,7 +47,9 @@ const verificationRoutes = require('./routes/verification');
 const vehicleRoutes = require('./routes/vehicles');
 const adminRoutes = require('./routes/admin');
 const messageRoutes = require('./routes/messages');
+const { addVehicle } = require('./controllers/vehicleController');
 
+// app.post('/api/inject-vehicle', addVehicle);
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/users', userRoutes);
@@ -65,6 +68,9 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/verification', verificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/advanced-search', require('./routes/advancedSearchRoutes'));
+app.use('/api/vendor-compare', require('./routes/vendorCompareRoutes'));
+app.use('/api/checkout-calculator', require('./routes/checkoutCalculatorRoutes'));
 
 const io = new Server(server, {
   cors: {
